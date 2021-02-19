@@ -6,49 +6,49 @@ class Login extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      body: Container(
+      body: Container( // inseri o container para delimitar o posicioamento dos widgets na tela
         padding: EdgeInsets.only(
           top: 60,
-          left: 40,
-          right: 40,
+          left: 30,
+          right: 30,
         ),
         color: Colors.white,
-        child: ListView(
+        child: ListView( // inseri um ListView para permitir scroll na tela
           children: <Widget>[
-            TextFormField(
+            TextFormField( // Bloco referente ao imput do email
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: "Email",
                 labelStyle: TextStyle(
                   color: Colors.black38,
-                  fontSize: 20.0,
+                  fontSize: 18.0,
                 ),
               ),
               style: TextStyle(
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input do email e o da senha
               height: 10,
             ),
-            TextFormField(
+            TextFormField( // bloco referente ao input da senha
               keyboardType: TextInputType.text,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Senha",
                 labelStyle: TextStyle(
                   color: Colors.black38,
-                  fontSize: 20.0,
+                  fontSize: 18.0,
                 ),
               ),
               style: TextStyle(
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco que da espaço entre a senha e o botão de Login
               height: 40,
             ),
-            Container(
+            Container( // container que define o fundo do botão
               height: 50,
               alignment: Alignment.centerRight,
               decoration: BoxDecoration(
@@ -66,7 +66,7 @@ class Login extends StatelessWidget{
                 ),
               ),
               child: SizedBox.expand(
-                child:FlatButton(
+                child:FlatButton( // bloco do botão de Login
                  child: Row(
                   children: <Widget>[
                     Text(
@@ -84,17 +84,17 @@ class Login extends StatelessWidget{
                 ),
                 ),
               ),
-            SizedBox(
+            SizedBox( // espaço entre o botão de login e o de cadastro
               height: 20,
             ),
-            Container(
+            Container( //tamanho do botão de cadastro
               height: 45,
-              child: FlatButton(
+              child: FlatButton( // botão de cadastro
                 child: Text(
                   "Cadastre-se",
                   textAlign: TextAlign.center,
                 ),
-                onPressed: () {
+                onPressed: () { // ação do botão
                   Navigator.push(
                       context, MaterialPageRoute(builder: (context) {
                     return CadastroUser();
