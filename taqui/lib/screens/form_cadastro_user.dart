@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
 const _tituloAppBar = 'Cadastro de Usuário';
 
 class CadastroUser extends StatefulWidget{
+
   @override
   State<StatefulWidget> createState() {
     return CadastroUserState();
@@ -10,6 +13,23 @@ class CadastroUser extends StatefulWidget{
 }
 
 class CadastroUserState extends State<CadastroUser> {
+
+  // os TextEditingController estão pegando os valores dos TextFormFields para posteror manipulação
+  final TextEditingController _controllerCampoNome = TextEditingController();
+  final TextEditingController _controllerCampoDataNasc = TextEditingController();
+  final TextEditingController _controllerCampoEmail = TextEditingController();
+  final TextEditingController _controllerCampoNumCel = TextEditingController();
+  final TextEditingController _controllerCampoNumTel = TextEditingController();
+  final TextEditingController _controllerCampoCpf = TextEditingController();
+  final TextEditingController _controllerCampoSenha = TextEditingController();
+  final TextEditingController _controllerCampoConfirmaSenha = TextEditingController();
+
+  // as mascaras a seguir estão sendo criadas aqui e aplicadas nos respectivos campos
+  var macaraDataNasc = new MaskTextInputFormatter(mask: '##/##/####', filter: { "#": RegExp(r'[0-9]') });
+  var macaraNumCel = new MaskTextInputFormatter(mask: '(##) #####-####', filter: { "#": RegExp(r'[0-9]') });
+  var macaraNumTel = new MaskTextInputFormatter(mask: '(##) ####-####', filter: { "#": RegExp(r'[0-9]') });
+  var macaraCpf = new MaskTextInputFormatter(mask: '###.###.###-##', filter: { "#": RegExp(r'[0-9]') });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +48,7 @@ class CadastroUserState extends State<CadastroUser> {
           children: <Widget>[
             TextFormField(
               keyboardType: TextInputType.text,
+              controller: _controllerCampoNome,
               decoration: InputDecoration(
                 labelText: "Nome",
                 icon: Icon(Icons.person),
@@ -45,6 +66,8 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.text,
+              controller: _controllerCampoDataNasc,
+              inputFormatters: [macaraDataNasc],
               decoration: InputDecoration(
                 labelText: "Data de Nascimento",
                 icon: Icon(Icons.calendar_today),
@@ -62,6 +85,7 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.emailAddress,
+              controller: _controllerCampoEmail,
               decoration: InputDecoration(
                 labelText: "Email",
                 icon: Icon(Icons.email),
@@ -79,6 +103,8 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.number,
+              controller: _controllerCampoNumCel,
+              inputFormatters: [macaraNumCel],
               decoration: InputDecoration(
                 labelText: "Número de Celular",
                 icon: Icon(Icons.phone_iphone),
@@ -96,6 +122,8 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.number,
+              controller: _controllerCampoNumTel,
+              inputFormatters: [macaraNumTel],
               decoration: InputDecoration(
                 labelText: "Número de Telefone",
                 icon: Icon(Icons.phone),
@@ -113,6 +141,8 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.number,
+              controller: _controllerCampoCpf,
+              inputFormatters: [macaraCpf],
               decoration: InputDecoration(
                 labelText: "CPF",
                 icon: Icon(Icons.perm_identity),
@@ -130,6 +160,7 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.text,
+              controller: _controllerCampoSenha,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Senha",
@@ -148,6 +179,7 @@ class CadastroUserState extends State<CadastroUser> {
             ),
             TextFormField(
               keyboardType: TextInputType.text,
+              controller: _controllerCampoConfirmaSenha,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Confirme sua Senha",
@@ -196,7 +228,16 @@ class CadastroUserState extends State<CadastroUser> {
                       ),
                     ],
                   ),
-                  onPressed: () => {},
+                  onPressed: () => {
+                    debugPrint(_controllerCampoNome.text), //testando pegar e mostrar o valor do controlador no console
+                    debugPrint(_controllerCampoDataNasc.text),
+                    debugPrint(_controllerCampoEmail.text),
+                    debugPrint(_controllerCampoNumCel.text),
+                    debugPrint(_controllerCampoNumTel.text),
+                    debugPrint(_controllerCampoCpf.text),
+                    debugPrint(_controllerCampoSenha.text),
+                    debugPrint(_controllerCampoConfirmaSenha.text)
+                  },
                 ),
               ),
             ),
