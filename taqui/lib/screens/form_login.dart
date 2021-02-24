@@ -2,7 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
 
+
+
 class Login extends StatelessWidget{
+
+  final TextEditingController _controllerCampoEmail = TextEditingController(); //os TextEditingController estão pegando os valores dos TextFormFields para posteror manipulação
+  final TextEditingController _controllerCampoSenha = TextEditingController();
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -17,6 +23,7 @@ class Login extends StatelessWidget{
           children: <Widget>[
             TextFormField( // Bloco referente ao imput do email
               keyboardType: TextInputType.emailAddress,
+              controller: _controllerCampoEmail,
               decoration: InputDecoration(
                 labelText: "Email",
                 labelStyle: TextStyle(
@@ -33,6 +40,7 @@ class Login extends StatelessWidget{
             ),
             TextFormField( // bloco referente ao input da senha
               keyboardType: TextInputType.text,
+              controller: _controllerCampoSenha,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: "Senha",
@@ -80,7 +88,11 @@ class Login extends StatelessWidget{
                     ),
                   ],
                  ),
-                  onPressed: () => {},
+                  onPressed: () => {
+                   debugPrint(_controllerCampoEmail.text), //testando pegar e mostrar o valor do controlador no console
+                   debugPrint(_controllerCampoSenha.text)
+
+                  },
                 ),
                 ),
               ),
