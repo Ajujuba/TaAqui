@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "798029555671",
+    "project_id": "taaqui-firebase-backend",
+    "storage_bucket": "taaqui-firebase-backend.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798029555671:android:ad26a068a1078ac3a24d92",
+        "android_client_info": {
+          "package_name": "com.example.taqui"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798029555671-1uu96ipi4gg5rll9atnvf9440mcsbis0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5_8Qgm4BoN_JrMBX0Wx1gwPci7zA73Jg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798029555671-1uu96ipi4gg5rll9atnvf9440mcsbis0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
