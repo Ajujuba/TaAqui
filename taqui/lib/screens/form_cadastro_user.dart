@@ -33,10 +33,10 @@ class CadastroUserState extends State<CadastroUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
       ),
-      body: Container(
+      body: Container( // inseri o container para delimitar o posicioamento dos widgets na tela
         padding: EdgeInsets.only(
           top: 20,
           left: 10,
@@ -44,9 +44,9 @@ class CadastroUserState extends State<CadastroUser> {
           bottom: 20,
         ),
         color: Colors.white,
-        child: ListView(
+        child: ListView( // inseri um ListView para permitir scroll na tela
           children: <Widget>[
-            TextFormField(
+            TextFormField( // Bloco referente ao input do nome
               keyboardType: TextInputType.text,
               controller: _controllerCampoNome,
               decoration: InputDecoration(
@@ -61,10 +61,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox(  // bloco referente ao espaço entre o input do nome e o da data de nascimento
               height: 5,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input da data de nascimento
               keyboardType: TextInputType.text,
               controller: _controllerCampoDataNasc,
               inputFormatters: [macaraDataNasc],
@@ -80,10 +80,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input da data de nascimento e o do email
               height: 5,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input do email
               keyboardType: TextInputType.emailAddress,
               controller: _controllerCampoEmail,
               decoration: InputDecoration(
@@ -98,10 +98,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input  do email e do numero de celular
               height: 5,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input do numero de celular
               keyboardType: TextInputType.number,
               controller: _controllerCampoNumCel,
               inputFormatters: [macaraNumCel],
@@ -117,10 +117,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input  do numero de celular e o numero de telefone
               height: 10,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input do numero de telefone
               keyboardType: TextInputType.number,
               controller: _controllerCampoNumTel,
               inputFormatters: [macaraNumTel],
@@ -136,10 +136,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input  do numero de telefone e do cpf
               height: 10,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao imput do cpf
               keyboardType: TextInputType.number,
               controller: _controllerCampoCpf,
               inputFormatters: [macaraCpf],
@@ -155,10 +155,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input  do cpf e a senha
               height: 5,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input da senha
               keyboardType: TextInputType.text,
               controller: _controllerCampoSenha,
               obscureText: true,
@@ -174,10 +174,10 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // bloco referente ao espaço entre o input  da senha e da confirmação de senha
               height: 5,
             ),
-            TextFormField(
+            TextFormField( // Bloco referente ao input da confirmação da senha
               keyboardType: TextInputType.text,
               controller: _controllerCampoConfirmaSenha,
               obscureText: true,
@@ -193,7 +193,7 @@ class CadastroUserState extends State<CadastroUser> {
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(
+            SizedBox( // espaço entre campo de confirmação de senha e o botão pra submeter o form
               height: 20,
             ),
             Container( // container que define o fundo do botão
