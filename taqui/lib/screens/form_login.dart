@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
+import 'package:taqui/screens/tela_perfil_usuario.dart';
 
 class Login extends StatefulWidget{
 
@@ -41,6 +42,10 @@ class LoginState extends State<Login>{
     if (_key.currentState.validate()) {
       // Sem erros na validação
       _key.currentState.save();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) {
+        return PerfilUsuario();
+      }));
     } else {
       // erro de validação
       setState(() {
