@@ -15,9 +15,12 @@ class PerfilUsuario extends StatefulWidget{
 
 class PerfilUsuarioState extends State<PerfilUsuario>{
   final laranja = Colors.deepOrange;
+  
+  //variáveis para manipular img
   File imagem;
   final picker = ImagePicker();
-
+  
+  //função para acessar as mídias da galeria
   Future pegarImgGaleria() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
@@ -29,6 +32,7 @@ class PerfilUsuarioState extends State<PerfilUsuario>{
     });
   }
 
+  //função para acessar a camera do celular
   Future pegarImgCamera() async {
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     setState(() {
