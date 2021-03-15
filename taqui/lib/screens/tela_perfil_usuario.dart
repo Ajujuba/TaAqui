@@ -47,7 +47,7 @@ class PerfilUsuarioState extends State<PerfilUsuario>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
       ),
