@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
+import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 
 class Login extends StatefulWidget{
@@ -67,9 +69,9 @@ class LoginState extends State<Login>{
         ),
         color: Colors.white,
         child: Form(
-            key: _key,
-            autovalidate: _validate,
-            child: _formUI(),
+          key: _key,
+          autovalidate: _validate,
+          child: _formUI(),
         ),
       ),
     );
@@ -175,6 +177,17 @@ class LoginState extends State<Login>{
             },
           ),
         ),
+        RaisedButton(
+          onPressed: () {
+            ObjetoPerdido objeto = ObjetoPerdido("Rua Paraguai 281", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
+            );
+          },
+          color: Colors.orange,
+          child: Text("Detalhes do objeto"),
+        )
       ],
     );
 
