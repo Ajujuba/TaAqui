@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_login.dart';
+import 'package:taqui/screens/tela_perfil_usuario.dart';
+import 'package:taqui/screens/tela_postagens.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Login(),
+      home: PostagensUsuario(),
       debugShowCheckedModeBanner: false,
     );
   }
