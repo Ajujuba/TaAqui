@@ -4,6 +4,7 @@ import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
+import 'package:taqui/screens/tela_visualizar_postagem.dart';
 
 class Login extends StatefulWidget{
 
@@ -187,6 +188,16 @@ class LoginState extends State<Login>{
           },
           color: Colors.orange,
           child: Text("Detalhes do objeto"),
+        ),
+        RaisedButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VisualizarPostagem())
+            );
+          },
+          color: Colors.orange,
+          child: Text("Detalhes da Postagem"),
         )
       ],
     );

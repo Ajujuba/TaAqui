@@ -91,7 +91,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                       ),
                       child: Column(
                         children: <Widget>[
-                          Row( // linha onde estão os elementos do container
+                          Row( // linha onde estão os elementos do container de fundo laranja
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Padding( // define icone e função da galeria
