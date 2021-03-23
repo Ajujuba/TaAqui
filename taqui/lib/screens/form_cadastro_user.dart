@@ -1,6 +1,44 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'form_login.dart';
+
+Future<void> showInformationDialog(BuildContext context, String txt) async{
+  return await showDialog(context: context,
+      builder: (context){
+        return AlertDialog(
+          title: Text("Aviso!"),
+          content: Text(txt),
+          actions: <Widget>[
+            TextButton(
+                onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Login();
+                  }));
+                },
+                child: Text("Ok"))
+          ],
+        );
+      });
+}
+
+Future<void> showErrorDialog(BuildContext context, String txt) async{
+  return await showDialog(context: context,
+      builder: (context){
+        return AlertDialog(
+          title: Text("Erro!"),
+          content: Text(txt),
+          actions: <Widget>[
+            TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child: Text("Ok"))
+          ],
+        );
+      });
+}
 
 const _tituloAppBar = 'Cadastro de Usuário';
 
@@ -92,10 +130,27 @@ class CadastroUserState extends State<CadastroUser> {
     }
   }
 
-  _sendForm() {
+  _sendForm() async {
     if (_key.currentState.validate()) {
       // Sem erros na validação
       _key.currentState.save();
+      try {
+        FirebaseUser user = (await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+            email: _controllerCampoEmail.text,
+            password: _controllerCampoSenha.text));
+        //Caso usuario tenha sido cadastrado
+        if (user != null){
+          String txt = "Usuário cadastrado com sucesso!";
+          showInformationDialog(context, txt);
+          //realizar incert do fire storage aqui
+        }
+      } catch (e){
+        print(e);
+        String txt = "Email já cadastrado no sistema!";
+        showErrorDialog(context, txt);
+        _controllerCampoEmail.text = "";
+      }
     } else {
       // erro de validação
       setState(() {
@@ -344,7 +399,9 @@ class CadastroUserState extends State<CadastroUser> {
                     ),
                   ],
                 ),
-                onPressed:  _sendForm,
+                onPressed:  ()async{
+                  _sendForm();
+                },
               ),
             ),
           ),

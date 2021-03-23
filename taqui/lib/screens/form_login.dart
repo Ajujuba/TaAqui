@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
@@ -6,6 +7,23 @@ import 'package:taqui/screens/tela_listagem_chats.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 import 'package:taqui/screens/tela_visualizar_postagem.dart';
+
+Future<void> showInformationDialog(BuildContext context, String txt) async{
+  return await showDialog(context: context,
+      builder: (context){
+        return AlertDialog(
+          title: Text("Aviso"),
+          content: Text(txt),
+          actions: <Widget>[
+            TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child: Text("Ok"))
+          ],
+        );
+      });
+}
 
 class Login extends StatefulWidget{
 
@@ -42,14 +60,25 @@ class LoginState extends State<Login>{
     }
   }
 
-  _sendForm() {
+  _sendForm() async {
     if (_key.currentState.validate()) {
       // Sem erros na validação
       _key.currentState.save();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) {
-        return PerfilUsuario();
-      }));
+      try{
+        FirebaseUser user =
+        (await FirebaseAuth.instance.signInWithEmailAndPassword(
+                email: _controllerCampoEmail.text,
+                password: _controllerCampoSenha.text));
+        if (user != null){
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) {
+            return PerfilUsuario();
+          }));
+        }
+      }catch(e){
+        String txt = "Usuário ou senha não encontrados!";
+        showInformationDialog(context, txt);
+      }
     } else {
       // erro de validação
       setState(() {
