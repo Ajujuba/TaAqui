@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_login.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import 'Menu.dart';
 
+void main() {
+  runApp(MaterialApp(
+    title: 'Tá aqui',
+    theme: ThemeData(
+      primarySwatch: Colors.deepOrange,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    ),
+    home: Login(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+/*
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -32,7 +42,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
+*/
 
 
 

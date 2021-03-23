@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:taqui/Menu.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
 import 'package:taqui/screens/tela_listagem_chats.dart';
@@ -72,7 +73,7 @@ class LoginState extends State<Login>{
         if (user != null){
           Navigator.push(
               context, MaterialPageRoute(builder: (context) {
-            return PerfilUsuario();
+            return Menu();
           }));
         }
       }catch(e){
