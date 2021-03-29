@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/Menu.dart';
@@ -8,6 +10,7 @@ import 'package:taqui/screens/tela_listagem_chats.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 import 'package:taqui/screens/tela_visualizar_postagem.dart';
+
 
 Future<void> showInformationDialog(BuildContext context, String txt) async{
   return await showDialog(context: context,
@@ -66,18 +69,28 @@ class LoginState extends State<Login>{
       // Sem erros na validação
       _key.currentState.save();
       try{
-        FirebaseUser user =
+        UserCredential userCred =
         (await FirebaseAuth.instance.signInWithEmailAndPassword(
                 email: _controllerCampoEmail.text,
                 password: _controllerCampoSenha.text));
-        if (user != null){
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) {
+          return Menu();
+        }));
+        if (userCred != null){
+          print("Foi");
           Navigator.push(
               context, MaterialPageRoute(builder: (context) {
             return Menu();
           }));
         }
-      }catch(e){
+      } on FirebaseAuthException catch (e){
         String txt = "Usuário ou senha não encontrados!";
+        if (e.code == 'user-not-found'){
+           txt = "Nenhum usuário encontrado com esse email.";
+        }else if (e.code == "wrong-password") {
+           txt = "Senha inválida";
+        }
         showInformationDialog(context, txt);
       }
     } else {

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -135,7 +136,7 @@ class CadastroUserState extends State<CadastroUser> {
       // Sem erros na validação
       _key.currentState.save();
       try {
-        FirebaseUser user = (await FirebaseAuth.instance
+        UserCredential user = (await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
             email: _controllerCampoEmail.text,
             password: _controllerCampoSenha.text));
@@ -143,13 +144,19 @@ class CadastroUserState extends State<CadastroUser> {
         if (user != null){
           String txt = "Usuário cadastrado com sucesso!";
           showInformationDialog(context, txt);
-          //realizar incert do fire storage aqui
+          inserirUsuario();
         }
-      } catch (e){
-        print(e);
+      } on FirebaseAuthException catch (e){
         String txt = "Email já cadastrado no sistema!";
+        if (e.code == 'weak-password'){
+          txt = "A senha cadastrada é muito fraca";
+          _controllerCampoSenha.text = "";
+          _controllerCampoConfirmaSenha.text = "";
+        }else if (e.code == "email-already-in-use") {
+          txt = "Já existe uma conta cadastrada neste email";
+          _controllerCampoEmail.text = "";
+        }
         showErrorDialog(context, txt);
-        _controllerCampoEmail.text = "";
       }
     } else {
       // erro de validação
@@ -157,6 +164,23 @@ class CadastroUserState extends State<CadastroUser> {
         _validate = true;
       });
     }
+  }
+
+  inserirUsuario() async{
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String email2 = auth.currentUser.email.toString();
+    print(email2);
+    var email = _controllerCampoEmail.text;
+    CollectionReference user = FirebaseFirestore.instance.collection("usuarios");
+    //Alterar nome do doc de email pra UID ao finalizar o prj!!!
+    user.doc(email).set({
+      'nome': _controllerCampoNome.text,
+      'dataNasc': _controllerCampoDataNasc.text,
+      'numCell': _controllerCampoNumCel.text,
+      'numTelefone': _controllerCampoNumTel.text,
+      'cpf': _controllerCampoCpf.text
+    });
+    print("");
   }
 
   @override
@@ -401,6 +425,10 @@ class CadastroUserState extends State<CadastroUser> {
                 ),
                 onPressed:  ()async{
                   _sendForm();
+                  String email = _controllerCampoEmail.text;
+                  String nome = _controllerCampoNome.text;
+                  String data = _controllerCampoDataNasc.text;
+                  Map map = {'nome': nome,'email': email};
                 },
               ),
             ),

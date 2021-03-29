@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_login.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'Menu.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MaterialApp(
     title: 'Tá aqui',
     theme: ThemeData(

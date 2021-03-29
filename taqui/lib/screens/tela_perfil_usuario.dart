@@ -47,7 +47,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   }
 
   //função para acessar o Storage e salvar a foto de perfil
-  Future salvarFoto(BuildContext context) async {
+ /* Future salvarFoto(BuildContext context) async {
     String fileName = basename(
         imagem.path); //pegando apenas o nome da img e não o caminho inteiro
     StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(
@@ -60,7 +60,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Foto de perfil atualizada')));
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +155,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                 RaisedButton(
                                   color: Colors.white,
                                   onPressed: () {
-                                    salvarFoto(context);
+                                   // salvarFoto(context);
                                   },
                                   elevation: 0.0,
                                   splashColor: Colors.deepOrange[100],
