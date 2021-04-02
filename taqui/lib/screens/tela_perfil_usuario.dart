@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 
 const _tituloAppBar = 'Perfil do usuário';
@@ -47,20 +46,20 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   }
 
   //função para acessar o Storage e salvar a foto de perfil
- /* Future salvarFoto(BuildContext context) async {
+ Future salvarFoto(BuildContext context) async {
     String fileName = basename(
         imagem.path); //pegando apenas o nome da img e não o caminho inteiro
-    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(
+    firebase_storage.Reference firebaseStorageRef = firebase_storage.FirebaseStorage.instance.ref().child(
         fileName); //obtem referencia ao nome do arquivo
-    StorageUploadTask uploadTask = firebaseStorageRef.child("fotos_perfil/")
+    firebase_storage.UploadTask uploadTask = firebaseStorageRef.child("fotos_perfil/")
         .putFile(imagem); // inserindo o arquivo no firebase
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    firebase_storage.TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() =>
     setState(() {
       print("Foto de perfil atualizada");
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Foto de perfil atualizada')));
-    });
-  }*/
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +154,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                 RaisedButton(
                                   color: Colors.white,
                                   onPressed: () {
-                                   // salvarFoto(context);
+                                    salvarFoto(context);
                                   },
                                   elevation: 0.0,
                                   splashColor: Colors.deepOrange[100],
