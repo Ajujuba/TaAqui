@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 const _tituloAppBar = 'Perfil do usuário';
@@ -45,20 +47,39 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     });
   }
 
+
   //função para acessar o Storage e salvar a foto de perfil
  Future salvarFoto(BuildContext context) async {
-    String fileName = basename(
-        imagem.path); //pegando apenas o nome da img e não o caminho inteiro
-    firebase_storage.Reference firebaseStorageRef = firebase_storage.FirebaseStorage.instance.ref().child(
-        fileName); //obtem referencia ao nome do arquivo
-    firebase_storage.UploadTask uploadTask = firebaseStorageRef.child("fotos_perfil/")
-        .putFile(imagem); // inserindo o arquivo no firebase
-    firebase_storage.TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() =>
-    setState(() {
-      print("Foto de perfil atualizada");
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Foto de perfil atualizada')));
-    }));
+    try {
+      String fileName = basename(
+          imagem.path); //pegando apenas o nome da img e não o caminho inteiro
+      firebase_storage.Reference firebaseStorageRef = firebase_storage
+          .FirebaseStorage.instance.ref().child(
+          fileName); //obtem referencia ao nome do arquivo
+      firebase_storage.UploadTask uploadTask = firebaseStorageRef.child(
+          "fotos_perfil").child(fileName)
+          .putFile(imagem); // inserindo o arquivo no firebase
+      firebase_storage.TaskSnapshot taskSnapshot = await uploadTask
+          .whenComplete(() =>
+          setState(() {
+            if (uploadTask !=
+                null) { 
+              FirebaseAuth auth = FirebaseAuth.instance;
+              String email = auth.currentUser.email.toString();
+              CollectionReference user = FirebaseFirestore.instance.collection(
+                  "usuarios");
+              //Alterar nome do doc de email pra UID ao finalizar o prj!!!
+              user.doc(email).update({
+                'foto_perfil': fileName
+              });
+            }
+            print("Foto de perfil atualizada");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Foto de perfil atualizada')));
+          }));
+    } on FirebaseException catch(e){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
+    }
   }
 
   @override
