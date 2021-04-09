@@ -57,11 +57,8 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
       String fileName = basename(
           imagem.path); //pegando apenas o nome da img e não o caminho inteiro
       firebase_storage.Reference firebaseStorageRef = firebase_storage
-          .FirebaseStorage.instance.ref().child(
-          fileName); //obtem referencia ao nome do arquivo
-      firebase_storage.UploadTask uploadTask = firebaseStorageRef.child(
-          "fotos_perfil").child(fileName)
-          .putFile(imagem); // inserindo o arquivo no firebase
+          .FirebaseStorage.instance.ref().child('foto_perfil/$fileName'); //obtem referencia ao nome do arquivo
+      firebase_storage.UploadTask uploadTask = firebaseStorageRef.putFile(imagem); // inserindo o arquivo no firebase
       firebase_storage.TaskSnapshot taskSnapshot = await uploadTask
           .whenComplete(() =>
           setState(() {
@@ -80,6 +77,9 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Foto de perfil atualizada')));
           }));
+      taskSnapshot.ref.getDownloadURL().then(
+            (value) => print("Done: $value"),
+      );
     } on FirebaseException catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
     }
@@ -95,9 +95,22 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     return _controllerCampoEmail;
   }
 
-  getNome(){
-
-  }
+ /* getNome(){
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String email = auth.currentUser.email.toString();
+    CollectionReference docRef = FirebaseFirestore.instance.collection('usuarios');
+    return docRef.get().whenComplete(() =>
+        FutureBuilder<DocumentSnapshot>(
+          future: docRef.doc(email).get(),
+            builder:
+                (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  Map<String, dynamic> data = snapshot.data.data();
+                  this._controllerCampoNome.text = data['nome'];
+                  return data['nome'];
+                }
+        )
+    );
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +252,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                               Flexible(
                                                 child: TextField(
                                                   keyboardType: TextInputType.text,
-                                                  controller: getEmail(_controllerCampoNome),
+                                                  controller: _controllerCampoNome,
                                                   decoration: InputDecoration(
                                                     border: InputBorder.none,
                                                     hintText: "Nome",
@@ -355,7 +368,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                       Align( // conteúdo
                                         alignment: Alignment.centerLeft,
                                         child:  SizedBox(
-                                          width: 200,
+                                          width: 150,
                                           child: Row(
                                             children: <Widget>[
                                               Flexible(
@@ -384,19 +397,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                   ),
                                 ),
                               ),
-                              Align( // ícone que vai chamar a tela pra editar
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: laranja,
-                                      size: 30,
-                                    ),
-                                    //onPressed: PREENCHER ,
-                                  ),
-                                ),
-                              ),
+
                             ],
                           ),
                         ],
