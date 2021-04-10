@@ -76,7 +76,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                   "usuarios");
               //Alterar nome do doc de email pra UID ao finalizar o prj!!!
               user.doc(email).update({
-                'foto_perfil': fileName
+                'foto_perfil': nome_img
               });
             }
             print("Foto de perfil atualizada");
