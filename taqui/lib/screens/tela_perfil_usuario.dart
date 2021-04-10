@@ -7,7 +7,6 @@ import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 const _tituloAppBar = 'Perfil do usuário';
 
 class PerfilUsuario extends StatefulWidget {
@@ -27,6 +26,8 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   //variáveis para manipular img
   File imagem;
   final picker = ImagePicker();
+  String _idUsuarioLogado;
+  String _urlImagemRecuperada;
 
   //função para acessar as mídias da galeria
   Future pegarImgGaleria() async {
@@ -50,14 +51,19 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     });
   }
 
-
   //função para acessar o Storage, salvar a foto de perfil e adicionar uma referencia em Usuários
  Future salvarFoto(BuildContext context) async {
     try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      String  usuarioLogado = auth.currentUser.uid.toString();
+      _idUsuarioLogado = usuarioLogado;
+      print(" uid: $usuarioLogado");
+      final ext = ".jpg";
+      String nome_img=("$_idUsuarioLogado"+ext);
       String fileName = basename(
           imagem.path); //pegando apenas o nome da img e não o caminho inteiro
       firebase_storage.Reference firebaseStorageRef = firebase_storage
-          .FirebaseStorage.instance.ref().child('foto_perfil/$fileName'); //obtem referencia ao nome do arquivo
+          .FirebaseStorage.instance.ref().child('foto_perfil').child(nome_img); //obtem referencia ao nome do arquivo
       firebase_storage.UploadTask uploadTask = firebaseStorageRef.putFile(imagem); // inserindo o arquivo no firebase
       firebase_storage.TaskSnapshot taskSnapshot = await uploadTask
           .whenComplete(() =>
@@ -77,8 +83,9 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Foto de perfil atualizada')));
           }));
+      //Recuperar url da imagem
       taskSnapshot.ref.getDownloadURL().then(
-            (value) => print("Done: $value"),
+            (value) => print("Done: $value")
       );
     } on FirebaseException catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
@@ -94,23 +101,6 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     this._controllerCampoEmail.text = email;
     return _controllerCampoEmail;
   }
-
- /* getNome(){
-    FirebaseAuth auth = FirebaseAuth.instance;
-    String email = auth.currentUser.email.toString();
-    CollectionReference docRef = FirebaseFirestore.instance.collection('usuarios');
-    return docRef.get().whenComplete(() =>
-        FutureBuilder<DocumentSnapshot>(
-          future: docRef.doc(email).get(),
-            builder:
-                (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  Map<String, dynamic> data = snapshot.data.data();
-                  this._controllerCampoNome.text = data['nome'];
-                  return data['nome'];
-                }
-        )
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) {
