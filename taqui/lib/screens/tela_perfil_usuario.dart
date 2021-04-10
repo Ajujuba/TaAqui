@@ -52,7 +52,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   }
 
   //função para acessar o Storage, salvar a foto de perfil e adicionar uma referencia em Usuários
- Future salvarFoto(BuildContext context) async {
+  Future salvarFoto(BuildContext context) async {
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
       String  usuarioLogado = auth.currentUser.uid.toString();
@@ -90,6 +90,33 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     } on FirebaseException catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
     }
+  }
+
+  Future<void> recuperarUrlFotoPerfil() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String  usuarioLogado = auth.currentUser.uid.toString();
+    _idUsuarioLogado = usuarioLogado;
+    String caminho = ("foto_perfil/$_idUsuarioLogado");
+    String url = await firebase_storage.FirebaseStorage.instance
+        .ref(caminho)
+        .getDownloadURL();
+    _atualizarUrlImagemFirestore( url );
+
+    setState(() {
+      _urlImagemRecuperada = url;
+    });
+  }
+
+  _atualizarUrlImagemFirestore(String url){
+
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    Map<String, dynamic> dadosAtualizar = {
+      "foto_perfil" : url
+    };
+
+    db.collection("usuarios").doc(_idUsuarioLogado).update(dadosAtualizar);
+
   }
 
   getEmail(_controllerCampoEmail){
@@ -153,20 +180,15 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                   child: CircleAvatar( // define a borda da img
                                     radius: 100,
                                     backgroundColor: Colors.white,
-                                    child: ClipOval( // define onde a img aparece
-                                      child: new SizedBox( //define o tamanho da img
-                                        width: 180.0,
-                                        height: 180.0,
-                                        child: (imagem != null) ? Image
-                                            .file( //se a pessoa escolher um arquivo
-                                          imagem,
-                                          //o arquivo será exibido no perfil
-                                          fit: BoxFit.fill,
-                                        ) : Image.network(
-                                          "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
-                                          fit: BoxFit
-                                              .fill, //senao, uma img default irá ser exibida
-                                        ),
+                                    child: CircleAvatar( // define onde a img aparece
+                                      radius: 95,
+                                      backgroundImage:
+                                      _urlImagemRecuperada != null
+                                          ? NetworkImage(_urlImagemRecuperada)
+                                          : Image.network(
+                                        "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+                                        fit: BoxFit
+                                            .scaleDown, //senao, uma img default irá ser exibida
                                       ),
                                     ),
                                   ),
