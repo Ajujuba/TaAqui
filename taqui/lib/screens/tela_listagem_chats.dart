@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/models/Chat.dart';
-import '../models/ObjetoPerdido.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:taqui/models/Usuario.dart';
+import 'package:taqui/screens/tela_mensagens.dart';
 
 class ListagemChats extends StatefulWidget {
   @override
@@ -8,77 +13,155 @@ class ListagemChats extends StatefulWidget {
 }
 
 class _ListagemChatsState extends State<ListagemChats> {
+  List<Chat> _listaConversas = [];
+  final _controller = StreamController<QuerySnapshot>.broadcast();
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  String _idUsuarioLogado;
 
-  Future<List<Chat>> _recuperarChats() async {
+  @override
+  void initState() {
+    super.initState();
+    _recuperarDadosUsuario();
 
-    List<Chat> chats = [];
-    Chat chat1 = Chat("Nicolas","Raya", DateTime.now(), ObjetoPerdido("Fatec Ipiranga", "Guarda-chuve lilás"), "Fechou. Vamos nos falando", "null");
-    Chat chat2 = Chat("Nicolas","Pietro", DateTime.now(), ObjetoPerdido("Avenida Paulista", "Corta-vento azul claro"), "Obrigado você!", "null");
-    Chat chat3 = Chat("Nicolas","John", DateTime.now(), ObjetoPerdido("Estação da Luz", "Carteira de Trabalho com capa do Ciclope"), "Desculpa me enganei", "null");
+    Chat conversa = Chat();
+    conversa.nome = "Ana Clara";
+    conversa.mensagem = "Olá tudo bem?";
+    conversa.caminhoFoto = "https://firebasestorage.googleapis.com/v0/b/taaqui-firebase-backend.appspot.com/o/foto_perfil%2FQBXHNY3s7zdNPygwHb31hlmFv182.jpg?alt=media&token=94acf580-1a31-4405-9dc7-cea476819da7";
 
-    chats.add(chat1);
-    chats.add(chat2);
-    chats.add(chat3);
-    //programar verficação se o objeto é meu ou não. Se for meu mostrar o nome da outra pessoa, senõa mostrar meu nome
-    //isso serve porque tanto o dono quanto o procurador podem listar os chats. Pra saber o nome de quem mostrar com prioridade,
-    //entao deve realizar essa checagem, partindo do principio que o usuario 1 sempre é o dono e o usuario 2 quem achou
+    _listaConversas.add(conversa);
 
-    //esse codigo sera substituido pela busca no Firebase, por isso é uma Future
-    return chats;
-    //print( postagens.toString() );
+  }
 
+  Stream<QuerySnapshot> _adicionarListenerConversas(){
+
+    final stream = db.collection("conversas")
+        .doc( _idUsuarioLogado )
+        .collection("ultima_conversa")
+        .snapshots();
+
+    stream.listen((dados){
+      _controller.add( dados );
+    });
+
+  }
+
+  _recuperarDadosUsuario() async {
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User usuarioLogado = await auth.currentUser;
+
+    setState(() {
+      _idUsuarioLogado = usuarioLogado.uid;
+    });
+
+    _adicionarListenerConversas();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.close();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chats Ativos')
+        title: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Text(
+                  "Conversas"
+              ),
+            ),
+            Icon(Icons.chat_outlined, color: Colors.white)
+          ],
+        ),
       ),
-      body: FutureBuilder<List<Chat>>(
-        future: _recuperarChats(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _controller.stream,
         builder: (context, snapshot){
-          switch( snapshot.connectionState ){
-            case ConnectionState.none :
-            case ConnectionState.waiting :
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
               return Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  children: <Widget>[
+                    Text("Carregando conversas"),
+                    CircularProgressIndicator()
+                  ],
+                ),
               );
               break;
-            case ConnectionState.active :
-            case ConnectionState.done :
-              if( snapshot.hasError ){
-                print("lista: Erro ao carregar ");
-              }else {
+            case ConnectionState.active:
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                return Text("Erro ao carregar os dados!");
+              }else{
 
-                print("lista: carregou!! ");
+                QuerySnapshot querySnapshot = snapshot.data;
+
+                if( querySnapshot.docs.length == 0 ){
+                  return Center(
+                    child: Text(
+                      "Você não tem nenhuma mensagem ainda :( ",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  );
+                }
+
                 return ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index){
+                    itemCount: querySnapshot.docs.length,
+                    itemBuilder: (context, indice){
 
-                      List<Chat> lista = snapshot.data;
-                      Chat chat = lista[index];
+                      List<DocumentSnapshot> conversas = querySnapshot.docs.toList();
+                      DocumentSnapshot item = conversas[indice];
+
+                      String urlImagem  = item["caminhoFoto"];
+                      String tipo       = item["tipoMensagem"];
+                      String mensagem   = item["mensagem"];
+                      String nome       = item["nome"];
+                      String idDestinatario  = item["idDestinatario"];
+
+                      Usuario usuario = Usuario();
+                      usuario.nome = nome;
+                      usuario.urlImagem = urlImagem;
+                      usuario.idUsuario = idDestinatario;
 
                       return ListTile(
+                        onTap: (){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Mensagens(usuario))
+                          );
+                        },
                         contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                         leading: CircleAvatar(
                           maxRadius: 30,
-                          backgroundColor: Colors.deepOrange,
-                          backgroundImage: NetworkImage(chat.caminhoFoto),
+                          backgroundColor: Colors.grey,
+                          backgroundImage: urlImagem!=null
+                              ? NetworkImage( urlImagem )
+                              : null,
                         ),
                         title: Text(
-                          chat.nome2,
+                          nome,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16
                           ),
                         ),
                         subtitle: Text(
-                            chat.mensagem,
+                            tipo=="texto"
+                                ? mensagem
+                                : "Imagem...",
                             style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14
-                          ),
+                                color: Colors.grey,
+                                fontSize: 14
+                            )
                         ),
                       );
 
@@ -86,7 +169,6 @@ class _ListagemChatsState extends State<ListagemChats> {
                 );
 
               }
-              break;
           }
         },
       ),

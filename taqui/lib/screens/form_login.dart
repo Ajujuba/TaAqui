@@ -5,11 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/Menu.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
+import 'package:taqui/models/Usuario.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
 import 'package:taqui/screens/tela_listagem_chats.dart';
+import 'package:taqui/screens/tela_mensagens.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 import 'package:taqui/screens/tela_visualizar_postagem.dart';
+
+import 'tela_listagem_chats.dart';
 
 
 Future<void> showInformationDialog(BuildContext context, String txt) async{
@@ -243,16 +247,6 @@ class LoginState extends State<Login>{
           color: Colors.orange,
           child: Text("Detalhes da Postagem"),
         ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ListagemChats())
-            );
-          },
-          color: Colors.orange,
-          child: Text("Chats"),
-        )
       ],
     );
 
