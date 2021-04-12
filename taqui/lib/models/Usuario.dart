@@ -45,4 +45,9 @@ class Usuario{
   set idUsuario(String value) {
     _idUsuario = value;
   }
+
+  @override
+  String toString() {
+    return 'Usuario{_nome: $_nome, _email: $_email, _urlImagem: $_urlImagem}';
+  }
 }

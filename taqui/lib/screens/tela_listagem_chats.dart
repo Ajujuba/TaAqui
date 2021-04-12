@@ -13,7 +13,6 @@ class ListagemChats extends StatefulWidget {
 }
 
 class _ListagemChatsState extends State<ListagemChats> {
-  List<Chat> _listaConversas = [];
   final _controller = StreamController<QuerySnapshot>.broadcast();
   FirebaseFirestore db = FirebaseFirestore.instance;
   String _idUsuarioLogado;
@@ -22,14 +21,6 @@ class _ListagemChatsState extends State<ListagemChats> {
   void initState() {
     super.initState();
     _recuperarDadosUsuario();
-
-    Chat conversa = Chat();
-    conversa.nome = "Ana Clara";
-    conversa.mensagem = "Olá tudo bem?";
-    conversa.caminhoFoto = "https://firebasestorage.googleapis.com/v0/b/taaqui-firebase-backend.appspot.com/o/foto_perfil%2FQBXHNY3s7zdNPygwHb31hlmFv182.jpg?alt=media&token=94acf580-1a31-4405-9dc7-cea476819da7";
-
-    _listaConversas.add(conversa);
-
   }
 
   Stream<QuerySnapshot> _adicionarListenerConversas(){
@@ -52,6 +43,7 @@ class _ListagemChatsState extends State<ListagemChats> {
 
     setState(() {
       _idUsuarioLogado = usuarioLogado.uid;
+      print(_idUsuarioLogado);
     });
 
     _adicionarListenerConversas();

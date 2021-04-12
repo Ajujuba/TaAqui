@@ -26,6 +26,7 @@ class _MensagensState extends State<Mensagens> {
   final picker = ImagePicker();
   String _idUsuarioLogado;
   String _idUsuarioDestinatario;
+  Usuario _usuarioLogado = Usuario();
   FirebaseFirestore db = FirebaseFirestore.instance;
   TextEditingController _controllerMensagem = TextEditingController();
   final _controller = StreamController<QuerySnapshot>.broadcast();
@@ -72,8 +73,8 @@ class _MensagensState extends State<Mensagens> {
     cDestinatario.idRemetente = _idUsuarioDestinatario;
     cDestinatario.idDestinatario = _idUsuarioLogado;
     cDestinatario.mensagem = mensagem.mensagem;
-    cDestinatario.nome = widget.contato.nome;
-    cDestinatario.caminhoFoto = widget.contato.urlImagem;
+    cDestinatario.nome = _usuarioLogado.nome;
+    cDestinatario.caminhoFoto = _usuarioLogado.urlImagem;
     cDestinatario.tipoMensagem = mensagem.tipo;
     cDestinatario.salvar();
   }
@@ -123,9 +124,17 @@ class _MensagensState extends State<Mensagens> {
     FirebaseAuth auth = FirebaseAuth.instance;
     User usuarioLogado = await auth.currentUser;
 
+    DocumentSnapshot snapshot = await db.collection("usuarios")
+        .doc(usuarioLogado.email).get();
+
+    var user = snapshot.data();
+
     setState(() {
       _idUsuarioLogado = usuarioLogado.uid;
       _idUsuarioDestinatario = widget.contato.idUsuario;
+      _usuarioLogado.nome = user["nome"];
+      _usuarioLogado.urlImagem = user["foto_perfil"];
+      _usuarioLogado.email = usuarioLogado.email;
     });
     _adicionarListenerMensagens();
   }
