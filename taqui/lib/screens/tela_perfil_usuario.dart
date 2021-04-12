@@ -21,6 +21,8 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
 
   final TextEditingController _controllerCampoEmail = TextEditingController();
   final TextEditingController _controllerCampoNome = TextEditingController();
+  final TextEditingController _controllerCampoNumCel = TextEditingController();
+  final TextEditingController _controllerCampoNumTel = TextEditingController();
 
   //variáveis para manipular img
   File imagem;
@@ -133,7 +135,8 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
         .get();
 
     Map<String, dynamic> dados = snapshot.data();
-    //_controllerCampoNome.text = dados["nome"];
+    _controllerCampoNome.text = dados["nome"];
+    _controllerCampoNumCel.text = dados["numCell"];
 
     if( dados["foto_perfil"] != null ){
       _urlImagemRecuperada = dados["foto_perfil"];
@@ -237,7 +240,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                       },
                                     ),
                                   ),
-                                ], 
+                                ],
                               ),
                               SizedBox(
                                 height: 10.0,
@@ -277,12 +280,12 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                               children: <Widget>[
                                 Align(
                                   // título
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   child: Container(
                                     child: Column(
                                       children: <Widget>[
                                         Align(
-                                          alignment: Alignment.centerLeft,
+                                          alignment: Alignment.center,
                                           child: Text(
                                             'Nome',
                                             style: TextStyle(
@@ -295,7 +298,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                           // conteúdo
                                           alignment: Alignment.centerLeft,
                                           child: SizedBox(
-                                            width: 200,
+                                            width: 150,
                                             child: Row(
                                               children: <Widget>[
                                                 Flexible(
@@ -306,7 +309,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                                         _controllerCampoNome,
                                                     decoration: InputDecoration(
                                                       border: InputBorder.none,
-                                                      hintText: "Nome",
+                                                      hintText: "Informe o Nome",
                                                       hintStyle: TextStyle(
                                                           color: Colors.grey),
                                                       contentPadding:
@@ -357,25 +360,49 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                               children: <Widget>[
                                 Align(
                                   //título
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   child: Container(
                                     child: Column(
                                       children: <Widget>[
                                         Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text('Celular do user',
+                                          alignment: Alignment.center,
+                                          child: Text('Nº Celular',
                                               style: TextStyle(
                                                   color: laranja,
+                                                  fontWeight: FontWeight.bold,
                                                   fontSize: 18.0)),
                                         ),
                                         Align(
-                                          // conteudo
+                                          // conteúdo
                                           alignment: Alignment.centerLeft,
-                                          child: Text('11 99999-9999',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 20.0,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: SizedBox(
+                                            width: 150,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  child: TextField(
+                                                    keyboardType:
+                                                    TextInputType.number,
+                                                    controller:
+                                                    _controllerCampoNumCel,
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText: "Informe o Nº Celular",
+                                                      hintStyle: TextStyle(
+                                                          color: Colors.grey),
+                                                      contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 8,
+                                                          horizontal: 8),
+                                                    ),
+                                                    style: TextStyle(
+                                                      fontSize: 18.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -411,12 +438,12 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                               children: <Widget>[
                                 Align(
                                   // título
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   child: Container(
                                     child: Column(
                                       children: <Widget>[
                                         Align(
-                                          alignment: Alignment.centerLeft,
+                                          alignment: Alignment.center,
                                           child: Text(
                                             'Email',
                                             style: TextStyle(
