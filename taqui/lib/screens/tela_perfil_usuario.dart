@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 const _tituloAppBar = 'Perfil do usuário';
 
 class PerfilUsuario extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return PerfilUsuarioState();
@@ -55,53 +54,53 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   Future salvarFoto(BuildContext context) async {
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
-      String  usuarioLogado = auth.currentUser.uid.toString();
+      String usuarioLogado = auth.currentUser.uid.toString();
       _idUsuarioLogado = usuarioLogado;
       print(" uid: $usuarioLogado");
       final ext = ".jpg";
-      String nome_img=("$_idUsuarioLogado"+ext);
+      String nome_img = ("$_idUsuarioLogado" + ext);
       String fileName = basename(
           imagem.path); //pegando apenas o nome da img e não o caminho inteiro
       firebase_storage.Reference firebaseStorageRef = firebase_storage
-          .FirebaseStorage.instance.ref().child('foto_perfil').child(nome_img); //obtem referencia ao nome do arquivo
-      firebase_storage.UploadTask uploadTask = firebaseStorageRef.putFile(imagem); // inserindo o arquivo no firebase
-      firebase_storage.TaskSnapshot taskSnapshot = await uploadTask
-          .whenComplete(() =>
-          setState(() {
-            if (uploadTask !=
-                null) {
-              FirebaseAuth auth = FirebaseAuth.instance;
-              String email = auth.currentUser.email.toString();
-              CollectionReference user = FirebaseFirestore.instance.collection(
-                  "usuarios");
-              //Alterar nome do doc de email pra UID ao finalizar o prj!!!
-              user.doc(email).update({
-                'foto_perfil': nome_img
-              });
-            }
-            print("Foto de perfil atualizada");
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Foto de perfil atualizada')));
-          }));
+          .FirebaseStorage.instance
+          .ref()
+          .child('foto_perfil')
+          .child(nome_img); //obtem referencia ao nome do arquivo
+      firebase_storage.UploadTask uploadTask =
+          firebaseStorageRef.putFile(imagem); // inserindo o arquivo no firebase
+      firebase_storage.TaskSnapshot taskSnapshot =
+          await uploadTask.whenComplete(() => setState(() {
+                if (uploadTask != null) {
+                  FirebaseAuth auth = FirebaseAuth.instance;
+                  String email = auth.currentUser.email.toString();
+                  CollectionReference user =
+                      FirebaseFirestore.instance.collection("usuarios");
+                  //Alterar nome do doc de email pra UID ao finalizar o prj!!!
+                  user.doc(email).update({'foto_perfil': nome_img});
+                }
+                print("Foto de perfil atualizada");
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Foto de perfil atualizada')));
+              }));
       //Recuperar url da imagem
-      taskSnapshot.ref.getDownloadURL().then(
-            (value) => print("Done: $value")
-      );
-    } on FirebaseException catch(e){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
+      taskSnapshot.ref.getDownloadURL().then((value) => print("Done: $value"));
+      recuperarUrlFotoPerfil();
+    } on FirebaseException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao Atualizar foto de perfil')));
     }
   }
 
   Future<void> recuperarUrlFotoPerfil() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-    String  usuarioLogado = auth.currentUser.uid.toString();
+    String usuarioLogado = auth.currentUser.uid.toString();
     _idUsuarioLogado = usuarioLogado;
-    String caminho = ("foto_perfil/$_idUsuarioLogado");
+    final ext = ".jpg";
+    String caminho = ("foto_perfil/$_idUsuarioLogado"+ ext);
     String url = await firebase_storage.FirebaseStorage.instance
         .ref(caminho)
         .getDownloadURL();
     _atualizarUrlImagemFirestore( url );
-
     setState(() {
       _urlImagemRecuperada = url;
     });
@@ -110,16 +109,40 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   _atualizarUrlImagemFirestore(String url){
 
     FirebaseFirestore db = FirebaseFirestore.instance;
-
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String email = auth.currentUser.email.toString();
     Map<String, dynamic> dadosAtualizar = {
       "foto_perfil" : url
     };
 
-    db.collection("usuarios").doc(_idUsuarioLogado).update(dadosAtualizar);
+    db.collection("usuarios")
+        .doc(email)
+        .update( dadosAtualizar );
 
   }
 
-  getEmail(_controllerCampoEmail){
+  _recuperarDadosUsuario() async {
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String usuarioLogado = auth.currentUser.uid.toString();
+    _idUsuarioLogado = usuarioLogado;
+    String email = auth.currentUser.email.toString();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentSnapshot snapshot = await db.collection("usuarios")
+        .doc(email)
+        .get();
+
+    Map<String, dynamic> dados = snapshot.data();
+    //_controllerCampoNome.text = dados["nome"];
+
+    if( dados["foto_perfil"] != null ){
+      _urlImagemRecuperada = dados["foto_perfil"];
+      print(_urlImagemRecuperada);
+    }
+
+  }
+
+  getEmail(_controllerCampoEmail) {
     FirebaseAuth auth = FirebaseAuth.instance;
     String email = auth.currentUser.email.toString();
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -130,295 +153,322 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _recuperarDadosUsuario();
+    recuperarUrlFotoPerfil();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( // define um titulo pra tela
+      appBar: AppBar(
+        // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
       ),
       body: Builder(
-        builder: (context) =>
-            SingleChildScrollView(
-              child: Container(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Container( // define o retangulo laranja onde a foto vai aparecer
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
-                        height: 270,
-                        decoration: BoxDecoration( // define que a cor é laranja
-                          color: laranja,
-                          borderRadius: BorderRadius
-                              .only( // define bordas inferiores arredondadas
-                            bottomRight: Radius.circular(16),
-                            bottomLeft: Radius.circular(16),
+          builder: (context) => SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          // define o retangulo laranja onde a foto vai aparecer
+                          width: MediaQuery.of(context).size.width,
+                          height: 270,
+                          decoration: BoxDecoration(
+                            // define que a cor é laranja
+                            color: laranja,
+                            borderRadius: BorderRadius.only(
+                              // define bordas inferiores arredondadas
+                              bottomRight: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          children: <Widget>[
-                            Row( // linha onde estão os elementos do container de fundo laranja
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Padding( // define icone e função da galeria
-                                  padding: EdgeInsets.only(top: 120.0),
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.image,
-                                      size: 30.0,
-                                      color: Colors.white,
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                // linha onde estão os elementos do container de fundo laranja
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    // define icone e função da galeria
+                                    padding: EdgeInsets.only(top: 120.0),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.image,
+                                        size: 30.0,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        pegarImgGaleria();
+                                      },
                                     ),
-                                    onPressed: () {
-                                      pegarImgGaleria();
-                                    },
                                   ),
-                                ),
-                                Align( // posicionamento/layout da img de perfil
-                                  alignment: Alignment.center,
-                                  child: CircleAvatar( // define a borda da img
-                                    radius: 100,
-                                    backgroundColor: Colors.white,
-                                    child: CircleAvatar( // define onde a img aparece
-                                      radius: 95,
-                                      backgroundImage:
-                                      _urlImagemRecuperada != null
+                                  Align(
+                                    // posicionamento/layout da img de perfil
+                                    alignment: Alignment.center,
+                                    child: CircleAvatar(
+                                      // define a borda da img
+                                      radius: 100,
+                                      backgroundColor: Colors.white,
+                                      child: CircleAvatar(
+                                        radius: 90,
+                                          backgroundImage: _urlImagemRecuperada != null
                                           ? NetworkImage(_urlImagemRecuperada)
-                                          : Image.network(
-                                        "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
-                                        fit: BoxFit
-                                            .scaleDown, //senao, uma img default irá ser exibida
+                                          : NetworkImage(
+                                            "https://us.123rf.com/450wm/urfandadashov/urfandadashov1809/urfandadashov180901275/109135379-.jpg?ver=6"
+                                          ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Padding( // define icone e função  da camera
-                                  padding: EdgeInsets.only(top: 120.0),
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.camera_alt,
-                                      size: 30.0,
-                                      color: Colors.white,
+                                  Padding(
+                                    // define icone e função  da camera
+                                    padding: EdgeInsets.only(top: 120.0),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.camera_alt,
+                                        size: 30.0,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        pegarImgCamera();
+                                      },
                                     ),
+                                  ),
+                                ], 
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Row(
+                                //botão pra salvar a foto de perfil
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  RaisedButton(
+                                    color: Colors.white,
                                     onPressed: () {
-                                      pegarImgCamera();
+                                      salvarFoto(context);
                                     },
+                                    elevation: 0.0,
+                                    splashColor: Colors.deepOrange[100],
+                                    child: Text(
+                                      'Salvar Foto',
+                                      style: TextStyle(
+                                          color: laranja, fontSize: 16.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          //definindo os dados do perfil
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              // nome do user
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Align(
+                                  // título
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Nome',
+                                            style: TextStyle(
+                                                color: laranja,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0),
+                                          ),
+                                        ),
+                                        Align(
+                                          // conteúdo
+                                          alignment: Alignment.centerLeft,
+                                          child: SizedBox(
+                                            width: 200,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  child: TextField(
+                                                    keyboardType:
+                                                        TextInputType.text,
+                                                    controller:
+                                                        _controllerCampoNome,
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText: "Nome",
+                                                      hintStyle: TextStyle(
+                                                          color: Colors.grey),
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 8,
+                                                              horizontal: 8),
+                                                    ),
+                                                    style: TextStyle(
+                                                      fontSize: 18.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            Row( //botão pra salvar a foto de perfil
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                RaisedButton(
-                                  color: Colors.white,
-                                  onPressed: () {
-                                    salvarFoto(context);
-                                  },
-                                  elevation: 0.0,
-                                  splashColor: Colors.deepOrange[100],
-                                  child: Text(
-                                    'Salvar Foto',
-                                    style: TextStyle(
-                                        color: laranja, fontSize: 16.0),
+                                Align(
+                                  // ícone que vai chamar a tela pra editar
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: laranja,
+                                        size: 30,
+                                      ),
+                                      //onPressed: PREENCHER ,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row( //definindo os dados do perfil
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Row( // nome do user
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Align( // título
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Column(
-                                    children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('Nome',
-                                         style: TextStyle(
-                                           color: laranja,
-                                             fontWeight: FontWeight.bold,
-                                           fontSize: 18.0),
-                                         ),
-                                      ),
-                                      Align( // conteúdo
-                                        alignment: Alignment.centerLeft,
-                                        child:  SizedBox(
-                                          width: 200,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Flexible(
-                                                child: TextField(
-                                                  keyboardType: TextInputType.text,
-                                                  controller: _controllerCampoNome,
-                                                  decoration: InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Nome",
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey
-                                                    ),
-                                                    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                                  ),
-                                                  style: TextStyle(
-                                                    fontSize: 18.0,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          //numero do celular do user
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Align(
+                                  //título
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('Celular do user',
+                                              style: TextStyle(
+                                                  color: laranja,
+                                                  fontSize: 18.0)),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Align( // ícone que vai chamar a tela pra editar
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: laranja,
-                                      size: 30,
+                                        Align(
+                                          // conteudo
+                                          alignment: Alignment.centerLeft,
+                                          child: Text('11 99999-9999',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                      ],
                                     ),
-                                    //onPressed: PREENCHER ,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Row( //numero do celular do user
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Align( //título
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Column(
-                                    children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('Celular do user',
+                                Align(
+                                  // ícone que vai chamar a tela pra editar
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: laranja,
+                                        size: 30,
+                                      ),
+                                      //onPressed: PREENCHER ,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
+                          // email do user
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Align(
+                                  // título
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Email',
                                             style: TextStyle(
                                                 color: laranja,
-                                                fontSize: 18.0)),
-                                      ),
-                                      Align( // conteudo
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('11 99999-9999',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.bold)
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Align( // ícone que vai chamar a tela pra editar
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  child: IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: laranja,
-                                      size: 30,
-                                    ),
-                                    //onPressed: PREENCHER ,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Row( // email do user
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Align( // título
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  child: Column(
-                                    children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('Email',
-                                          style: TextStyle(
-                                              color: laranja,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18.0),
-                                        ),
-                                      ),
-                                      Align( // conteúdo
-                                        alignment: Alignment.centerLeft,
-                                        child:  SizedBox(
-                                          width: 150,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Flexible(
-                                                child: TextField(
-                                                  enabled: false,
-                                                  keyboardType: TextInputType.text,
-                                                  controller: getEmail(_controllerCampoEmail),
-                                                  decoration: InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Email",
-                                                    hintStyle: TextStyle(
-                                                        color: Colors.grey
-                                                    ),
-                                                    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                                  ),
-                                                  style: TextStyle(
-                                                    fontSize: 18.0,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Align(
+                                          // conteúdo
+                                          alignment: Alignment.centerLeft,
+                                          child: SizedBox(
+                                            width: 150,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  child: TextField(
+                                                    enabled: false,
+                                                    keyboardType:
+                                                        TextInputType.text,
+                                                    controller: getEmail(
+                                                        _controllerCampoEmail),
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText: "Email",
+                                                      hintStyle: TextStyle(
+                                                          color: Colors.grey),
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 8,
+                                                              horizontal: 8),
+                                                    ),
+                                                    style: TextStyle(
+                                                      fontSize: 18.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-
-                            ],
-                          ),
-                        ],
-                      ),
-                    ]
+                              ],
+                            ),
+                          ],
+                        ),
+                      ]),
                 ),
-              ),
-            )
-      ),
+              )),
     );
   }
 }
