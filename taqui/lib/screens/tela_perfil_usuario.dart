@@ -120,7 +120,40 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     db.collection("usuarios")
         .doc(email)
         .update( dadosAtualizar );
+  }
 
+  _atualizarNomeFirestore(BuildContext context){
+    String nome = _controllerCampoNome.text;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String email = auth.currentUser.email.toString();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Map<String, dynamic> dadosAtualizar = {
+      "nome" : nome
+    };
+    db.collection("usuarios")
+        .doc(email)
+        .update( dadosAtualizar );
+
+    print("Nome de perfil atualizado");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nome atualizado!')));
+  }
+
+  _atualizarCelularFirestore(BuildContext context){
+    String celular = _controllerCampoNumCel.text;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String email = auth.currentUser.email.toString();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Map<String, dynamic> dadosAtualizar = {
+      "numCell" : celular
+    };
+    db.collection("usuarios")
+        .doc(email)
+        .update( dadosAtualizar );
+
+    print("Celular de perfil atualizado");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nº de celular atualizado!')));
   }
 
   _recuperarDadosUsuario() async {
@@ -271,12 +304,79 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                           height: 10,
                         ),
                         Row(
+                          // email do user
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Align(
+                                  // título
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            'Email',
+                                            style: TextStyle(
+                                                color: laranja,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0),
+                                          ),
+                                        ),
+                                        Align(
+                                          // conteúdo
+                                          alignment: Alignment.centerLeft,
+                                          child: SizedBox(
+                                            width: 150,
+                                            child: Row(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  child: TextField(
+                                                    enabled: false,
+                                                    keyboardType:
+                                                    TextInputType.text,
+                                                    controller: getEmail(
+                                                        _controllerCampoEmail),
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText: "Email",
+                                                      hintStyle: TextStyle(
+                                                          color: Colors.grey),
+                                                      contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 8,
+                                                          horizontal: 8),
+                                                    ),
+                                                    style: TextStyle(
+                                                      fontSize: 18.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Row(
                           //definindo os dados do perfil
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Row(
                               // nome do user
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Align(
                                   // título
@@ -294,35 +394,37 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                                 fontSize: 18.0),
                                           ),
                                         ),
-                                        Align(
-                                          // conteúdo
-                                          alignment: Alignment.centerLeft,
-                                          child: SizedBox(
-                                            width: 150,
-                                            child: Row(
-                                              children: <Widget>[
-                                                Flexible(
-                                                  child: TextField(
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                    controller:
-                                                        _controllerCampoNome,
-                                                    decoration: InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Informe o Nome",
-                                                      hintStyle: TextStyle(
-                                                          color: Colors.grey),
-                                                      contentPadding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 8,
-                                                              horizontal: 8),
-                                                    ),
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
+                                        Container(
+                                          child: Align(
+                                            // conteúdo
+                                            alignment: Alignment.centerLeft,
+                                            child: SizedBox(
+                                              width: 180,
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Flexible(
+                                                    child: TextFormField(
+                                                      keyboardType:
+                                                      TextInputType.text,
+                                                      controller:
+                                                      _controllerCampoNome,
+                                                      decoration: InputDecoration(
+                                                        border: InputBorder.none,
+                                                        hintText: "Informe o Nome",
+                                                        hintStyle: TextStyle(
+                                                            color: Colors.grey),
+                                                        contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8,
+                                                            horizontal: 8),
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 18.0,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -340,7 +442,9 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                         color: laranja,
                                         size: 30,
                                       ),
-                                      //onPressed: PREENCHER ,
+                                      onPressed: () {
+                                        _atualizarNomeFirestore(context);
+                                      }
                                     ),
                                   ),
                                 ),
@@ -356,7 +460,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Align(
                                   //título
@@ -376,7 +480,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                           // conteúdo
                                           alignment: Alignment.centerLeft,
                                           child: SizedBox(
-                                            width: 150,
+                                            width: 180,
                                             child: Row(
                                               children: <Widget>[
                                                 Flexible(
@@ -418,7 +522,9 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                         color: laranja,
                                         size: 30,
                                       ),
-                                      //onPressed: PREENCHER ,
+                                      onPressed: () {
+                                        _atualizarCelularFirestore(context);
+                                      }
                                     ),
                                   ),
                                 ),
@@ -426,74 +532,8 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        Row(
-                          // email do user
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Align(
-                                  // título
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            'Email',
-                                            style: TextStyle(
-                                                color: laranja,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18.0),
-                                          ),
-                                        ),
-                                        Align(
-                                          // conteúdo
-                                          alignment: Alignment.centerLeft,
-                                          child: SizedBox(
-                                            width: 150,
-                                            child: Row(
-                                              children: <Widget>[
-                                                Flexible(
-                                                  child: TextField(
-                                                    enabled: false,
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                    controller: getEmail(
-                                                        _controllerCampoEmail),
-                                                    decoration: InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Email",
-                                                      hintStyle: TextStyle(
-                                                          color: Colors.grey),
-                                                      contentPadding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 8,
-                                                              horizontal: 8),
-                                                    ),
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ]),
+                      ],
+                  ),
                 ),
               )),
     );
