@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const _tituloAppBar = 'Cadastro de Postagem';
 
@@ -20,8 +22,11 @@ class CadastroPostagemState extends State<CadastroPostagem> {
   GlobalKey<FormState> _key = new GlobalKey(); // chave
   bool _validate = false;
 
-  final picker = ImagePicker();
+  String postagem = "";
+  String localizacao = "";
+  String desc = "";
 
+  final picker = ImagePicker();
   File _imagem1 = null;
   File _imagem2 = null;
   File _imagem3 = null;
@@ -65,6 +70,26 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     });
   }
 
+  criarPostagem() async{
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String usuarioLogado = auth.currentUser.uid.toString();
+
+    DocumentReference documento = db.collection("postagens")
+        .doc(postagem);
+    
+    documento.set({
+      "usuario" : usuarioLogado,
+      "postagem" : postagem,
+      "localizacao" : localizacao,
+      "descricao" : desc,
+      "imagem1" : _imagem1,
+      "imagem2" : _imagem2,
+      "imagem3" : _imagem3,
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +117,9 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         children: <Widget>[
           TextFormField( // Bloco referente ao input da localização
             keyboardType: TextInputType.text,
-            onSaved: (String val) { },
+            onSaved: (String val) {
+              localizacao = val;
+            },
             decoration: InputDecoration(
               labelText: "Localização",
               icon: Icon(Icons.zoom_in),
@@ -109,9 +136,31 @@ class CadastroPostagemState extends State<CadastroPostagem> {
             height: 5,
           ),
           Container(
+              child: TextFormField( // Bloco referente ao input da postagem
+                keyboardType: TextInputType.text,
+                onSaved: (String val) {
+                  postagem = val;
+                },
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
+                  labelText: "Nome da postagem",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontSize: 18.0,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18.0,
+                ),
+              )
+          ),
+
+          Container(
               child: TextFormField( // Bloco referente ao input da descrição
                 keyboardType: TextInputType.text,
-                onSaved: (String val) { },
+                onSaved: (String val) {
+                  desc = val;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
                   labelText: "Descrição do objeto...",
@@ -318,7 +367,10 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
-                onPressed: () { },
+                onPressed: () {
+                  criarPostagem();
+
+                },
                 style: TextButton.styleFrom(
                   primary: Colors.black,
                   backgroundColor: Colors.lightBlue,
