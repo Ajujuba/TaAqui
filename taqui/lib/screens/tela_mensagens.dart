@@ -158,6 +158,12 @@ class _MensagensState extends State<Mensagens> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _controller.close();
+  }
+
+  @override
   void initState()  {
     _recuperarDadosUsuario();
     super.initState();
