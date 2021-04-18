@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/form_login.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:taqui/screens/tela_abertura.dart';
 
 import 'Menu.dart';
 
@@ -13,7 +14,7 @@ void main() async{
       primarySwatch: Colors.deepOrange,
       visualDensity: VisualDensity.adaptivePlatformDensity,
     ),
-    home: Login(),
+    home: TelaAbertura(),
     debugShowCheckedModeBanner: false,
   ));
 }
