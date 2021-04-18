@@ -47,5 +47,11 @@
     <string>Necessário acesso a galeria de camera</string>
     <key>io.flutter.embedded_views_preview</key>
     <true/>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Precisamos de acesso a sua localização para utilizar o app.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Precisamos de acesso a sua localização em plano de fundo para recuperar o seu local.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Precisamos de acesso a sua localização completa para utilizar o app.</string>
 </dict>
 </plist>
