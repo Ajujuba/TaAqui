@@ -116,10 +116,16 @@ class LoginState extends State<Login>{
           right: 30,
         ),
         color: Colors.white,
-        child: Form(
-          key: _key,
-          autovalidate: _validate,
-          child: _formUI(),
+        child: Column(
+          children: [
+            Image.asset("imagens/logo_colorido.png"),
+            Expanded(child: Form(
+              key: _key,
+              autovalidate: _validate,
+              child: _formUI(),
+            ),
+            )
+          ],
         ),
       ),
     );

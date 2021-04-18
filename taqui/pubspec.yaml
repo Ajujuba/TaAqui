@@ -54,6 +54,7 @@ flutter:
   assets:
     - imagens/bg.png
     - imagens/logo.png
+    - imagens/logo_colorido.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
