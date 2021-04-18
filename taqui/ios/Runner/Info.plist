@@ -45,5 +45,7 @@
     <string>Necessario acesso a galeria de fotos</string>
     <key>NSCameraUsageDescription</key>
     <string>Necessário acesso a galeria de camera</string>
+    <key>io.flutter.embedded_views_preview</key>
+    <true/>
 </dict>
 </plist>

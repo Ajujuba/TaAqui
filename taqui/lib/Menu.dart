@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taqui/screens/tela_listagem_chats.dart';
+import 'package:taqui/screens/tela_mapa_postagens.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 
 class Menu extends StatefulWidget {
@@ -14,7 +15,7 @@ class _MenuState extends State<Menu> {
 
     List<Widget> telas = [
       PerfilUsuario(),
-      Container(
+      /*Container(
         child: Center(
           child: Text(
             "Lista de Postagens",
@@ -23,7 +24,8 @@ class _MenuState extends State<Menu> {
             ),
           )
         ),
-      ),
+      ),*/
+      MapaPostagens(),
       ListagemChats(),
       Container(
         child: Center(
