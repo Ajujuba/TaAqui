@@ -40,9 +40,9 @@ class CustomSearchDelegate extends SearchDelegate<String>{
 
     //_listaEnderecos = _listaEnderecos.where((texto) => endereco.toLowerCase().startsWith(texto.thoroughfare.toLowerCase())).toList();
 
-    for(Placemark endereco in _listaEnderecos){
+   /* for(Placemark endereco in _listaEnderecos){
       print(endereco.postalCode + " " + endereco.thoroughfare + " " + endereco.position.latitude.toString() + " " + endereco.position.longitude.toString());
-    }
+    }*/
 
     return _listaEnderecos;
   }
@@ -75,8 +75,8 @@ class CustomSearchDelegate extends SearchDelegate<String>{
                             map["rua"] = endereco.thoroughfare;
                             map["bairro"] = endereco.subLocality;
                             map["cep"] = endereco.postalCode;
-                            map["latitude"] = endereco.position.latitude.toString();
-                            map["longitude"] = endereco.position.longitude.toString();
+                            map["latitude"] = endereco.position.latitude;
+                            map["longitude"] = endereco.position.longitude;
                             var a = jsonEncode(map);
                             close(context, a);
                           },

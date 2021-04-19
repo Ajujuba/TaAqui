@@ -64,7 +64,7 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
                                     ConstrainedBox(constraints: BoxConstraints.tightFor(width: 250, height: 40),
                                       child: ElevatedButton.icon(
                                           onPressed: () {
-                                            ObjetoPerdido objeto = ObjetoPerdido("Endereço da Postagem ${posts[index]}", "Descrição da Postagem ${posts[index]}");
+                                            ObjetoPerdido objeto = ObjetoPerdido(); //ObjetoPerdido.con("Endereço da Postagem ${posts[index]}", "Descrição da Postagem ${posts[index]}");
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))

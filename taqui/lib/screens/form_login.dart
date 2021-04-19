@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:taqui/CustomSearchDelegate.dart';
 import 'package:taqui/Menu.dart';
+import 'package:taqui/enums/StatusObjeto.dart';
+import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/models/Usuario.dart';
 import 'package:taqui/screens/form_cadastro_user.dart';
@@ -236,8 +238,25 @@ class LoginState extends State<Login>{
           ),
         ),
         RaisedButton(
-          onPressed: () {
-            ObjetoPerdido objeto = ObjetoPerdido("Rua Paraguai 281", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+          onPressed: () async {
+            FirebaseFirestore db = FirebaseFirestore.instance;
+            DocumentSnapshot doc = await db.collection("postagens")
+            .doc("B3FzDaA9NH4S7U5gYduz")
+            .get();
+            var dados = doc.data();
+            ObjetoPerdido objeto = ObjetoPerdido();
+            Localizacao endereco = Localizacao();
+            endereco.rua = dados["endereco"]["rua"];
+            endereco.cep = dados["endereco"]["cep"];
+            endereco.latitude = dados["endereco"]["latitude"];
+            endereco.longitude = dados["endereco"]["longitude"];
+            objeto.id = "B3FzDaA9NH4S7U5gYduz";
+            objeto.endereco = endereco;
+            objeto.descricao = dados["descricao"];
+            objeto.usuario = dados["usuario"];
+            objeto.status = dados["status"];
+            objeto.imagem1 = dados["imagem1"];
+
             Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))

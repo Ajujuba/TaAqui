@@ -1,4 +1,10 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:taqui/CustomSearchDelegate.dart';
+import 'package:taqui/enums/StatusObjeto.dart';
+import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -13,7 +19,8 @@ class ObjetoDetalhe extends StatefulWidget {
 }
 
 class _ObjetoDetalheState extends State<ObjetoDetalhe> {
-
+  Localizacao _endereco = Localizacao();
+  FirebaseFirestore _db = FirebaseFirestore.instance;
   TextEditingController _controllerLocalizacao = TextEditingController();
   TextEditingController _controllerDescricao = TextEditingController();
 
@@ -23,9 +30,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   File _imagem1 = null;
   File _imagem2 = null;
   File _imagem3 = null;
-
-  List<File> _imagens = [];
-
+  
   //função para acessar as mídias da galeria
   Future _pegarImgGaleria(int numeroImagem) async {
     final pickedFile = await picker.getImage(source: ImageSource.camera);
@@ -63,38 +68,54 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     });
   }
   void preencheImagens(){
+    print(widget.objetoPerdido.toString());
     setState(() {
-      if(this._imagens.length > 0){
-        this._imagem1 = this._imagens[0];
+      if(widget.objetoPerdido.imagem1 != null){
+        this._imagem1 = File(widget.objetoPerdido.imagem1);
       }
-      if(this._imagens.length > 1){
-        this._imagem1 = this._imagens[1];
+      if(widget.objetoPerdido.imagem2 != null){
+        this._imagem2 = File(widget.objetoPerdido.imagem2);
       }
-      if(this._imagens.length > 2){
-        this._imagem1 = this._imagens[2];
+      if(widget.objetoPerdido.imagem3 != null){
+        this._imagem3 = File(widget.objetoPerdido.imagem3);
       }
     });
   }
-  void saveInfos(){
-    this._imagens = [];
-    if(this._imagem1 != null){
-      this._imagens.add(this._imagem1);
+
+  void _defineLocalizacao() async {
+    String res = await showSearch(context: context, delegate: CustomSearchDelegate());
+    if(res != null && res != ""){
+      final endereco = jsonDecode(res) as Map<String, dynamic>;
+      _endereco.rua = endereco["rua"];
+      _endereco.cep = endereco["cep"];
+      _endereco.latitude = endereco["latitude"];
+      _endereco.longitude = endereco["longitude"];
+      _controllerLocalizacao.text = endereco["rua"];
     }
-    if(this._imagem2 != null){
-      this._imagens.add(this._imagem2);
-    }
-    if(this._imagem3 != null){
-      this._imagens.add(this._imagem3);
-    }
-    print(this._imagens.length);
+  }
+  void _saveInfos() async{
+    widget.objetoPerdido.endereco = _endereco;
+    widget.objetoPerdido.descricao = _controllerDescricao.text;
+    _db.collection("postagens").doc(widget.objetoPerdido.id)
+        .set(widget.objetoPerdido.toMap());
+  }
+
+  void _excluirObjeto() async {
+    _db.collection("postagens").doc(widget.objetoPerdido.id)
+        .delete();
+  }
+
+  void _finalizarBusca() async {
+    widget.objetoPerdido.status = StatusObjeto.ENCONTRADO.toString();
+    _db.collection("postagens").doc(widget.objetoPerdido.id)
+        .set(widget.objetoPerdido.toMap());
   }
 
   @override
   Widget build(BuildContext context) {
 
-    this._controllerLocalizacao.text = widget.objetoPerdido.localizacao;
+    this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
     this._controllerDescricao.text = widget.objetoPerdido.descricao;
-    this._imagens = widget.objetoPerdido.imagens;
     this.preencheImagens();
 
     return Scaffold(
@@ -120,6 +141,9 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                     children: <Widget>[
                       Expanded(
                         child: TextField(
+                          onTap: () {
+                            _defineLocalizacao();
+                          },
                           keyboardType: TextInputType.text,
                           controller: _controllerLocalizacao,
                           decoration: InputDecoration(
@@ -137,11 +161,16 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.search,
-                          color: laranja,
-                          size: 35,
-                        ),
+                        child: IconButton(
+                            icon: Icon(
+                              Icons.search,
+                              color: laranja,
+                              size: 35,
+                            ),
+                            onPressed: (){
+                              _defineLocalizacao();
+                            }
+                        )
                       ),
                     ],
                   ),
@@ -207,7 +236,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                 height: 150,
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image: FileImage(this._imagem1),
+                                    image: NetworkImage(this._imagem1.path),
                                   ),
                                 ),
                               ),
@@ -366,6 +395,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                           textAlign: TextAlign.center,
                         ),
                         onPressed: () {
+                          _finalizarBusca();
                         }
                     ),
                   ),
@@ -400,7 +430,9 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        onPressed: saveInfos
+                        onPressed: (){
+                          _saveInfos();
+                        }
                     ),
                   ),
                 ),
@@ -435,6 +467,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                           textAlign: TextAlign.center,
                         ),
                         onPressed: () {
+                          _excluirObjeto();
                         }
                     ),
                   ),
