@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:taqui/CustomSearchDelegate.dart';
 import 'package:taqui/Menu.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/models/Usuario.dart';
@@ -281,7 +285,16 @@ class LoginState extends State<Login>{
           },
           color: Colors.orange,
           child: Text("Chats"),
-        )
+        ),
+        IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () async {
+              String res = await showSearch(context: context, delegate: CustomSearchDelegate());
+              if(res != null && res != ""){
+                final endereco = jsonDecode(res) as Map<String, dynamic>;
+              }
+            }
+        ),
       ],
     );
 
