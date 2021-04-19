@@ -108,7 +108,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   void _finalizarBusca() async {
     widget.objetoPerdido.status = StatusObjeto.ENCONTRADO.toString();
     _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .set(widget.objetoPerdido.toMap());
+        .update({"status": StatusObjeto.ENCONTRADO});
   }
 
   @override
