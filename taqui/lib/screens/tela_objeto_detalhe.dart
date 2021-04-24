@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +9,8 @@ import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:taqui/screens/tela_perfil_usuario.dart';
 
 class ObjetoDetalhe extends StatefulWidget {
 
@@ -68,7 +71,6 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     });
   }
   void preencheImagens(){
-    print(widget.objetoPerdido.toString());
     setState(() {
       if(widget.objetoPerdido.imagem1 != null){
         this._imagem1 = File(widget.objetoPerdido.imagem1);
@@ -94,21 +96,82 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     }
   }
   void _saveInfos() async{
-    widget.objetoPerdido.endereco = _endereco;
-    widget.objetoPerdido.descricao = _controllerDescricao.text;
     _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .set(widget.objetoPerdido.toMap());
+        .update({
+      "endereco": {
+        "latitude": _endereco.latitude,
+        "longitude": _endereco.longitude,
+        "rua": _endereco.rua,
+        "cep": _endereco.cep
+      },
+      "descricao": _controllerDescricao.text
+    }).then((value) => _exibirMensagem("Sucesso","Os dados desse objeto foram atualizados com êxito!", "atualizar"));
   }
 
   void _excluirObjeto() async {
     _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .delete();
+       .delete()
+       .then((value) {
+          _exibirMensagem("Objeto excluído", "Posha, esperamos que não tenha desistido da sua busca. Seja forte!", "excluir");
+       }
+    );
   }
 
   void _finalizarBusca() async {
     widget.objetoPerdido.status = StatusObjeto.ENCONTRADO.toString();
     _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .update({"status": StatusObjeto.ENCONTRADO});
+        .update({
+                  "status": StatusObjeto.ENCONTRADO
+        }).then((value) => _exibirMensagem("Busca Finalizada","Parabéns por ter encontrado seu objeto!", "finalizar"));
+  }
+
+  _exibirMensagem(String title, String mensagem, String tipo){
+    showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text(
+                "${title}",
+                style: TextStyle(
+                  color: Colors.deepOrange
+                ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "${mensagem}",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    if(tipo == "excluir"){
+                      _retorna();
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text("Ok")
+              ),
+            ],
+          );
+        }
+    );
+  }
+
+  _retorna(){
+    Timer(Duration(milliseconds: 500), (){
+      Navigator.pop(context);
+    });
   }
 
   @override
@@ -116,6 +179,12 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
 
     this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
     this._controllerDescricao.text = widget.objetoPerdido.descricao;
+
+    _endereco.rua = widget.objetoPerdido.endereco.rua;
+    _endereco.latitude = widget.objetoPerdido.endereco.latitude;
+    _endereco.longitude = widget.objetoPerdido.endereco.longitude;
+    _endereco.cep = widget.objetoPerdido.endereco.cep;
+
     this.preencheImagens();
 
     return Scaffold(

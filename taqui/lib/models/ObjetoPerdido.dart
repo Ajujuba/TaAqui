@@ -13,6 +13,7 @@ class ObjetoPerdido{
   String _imagem3;
   String _status;
   String _usuario;
+  DateTime _dataPostagem;
 
   Map<String, dynamic> toMap(){
     Map<String, dynamic> endereco = {
@@ -28,7 +29,8 @@ class ObjetoPerdido{
       "imagem2": _imagem2,
       "imagem3": _imagem2,
       "status": _status,
-      "usuario": _usuario
+      "usuario": _usuario,
+      "dataPostagem": _dataPostagem
     };
 
     return dados;
@@ -88,8 +90,14 @@ class ObjetoPerdido{
     _id = value;
   }
 
+  DateTime get dataPostagem => _dataPostagem;
+
+  set dataPostagem(DateTime value) {
+    _dataPostagem = value;
+  }
+
   @override
   String toString() {
-    return 'ObjetoPerdido{_id: $_id, _descricao: $_descricao, _endereco: $_endereco, _imagem1: $_imagem1, _imagem2: $_imagem2, _imagem3: $_imagem3, _status: $_status, _usuario: $_usuario}';
+    return 'ObjetoPerdido{_id: $_id, _descricao: $_descricao, _endereco: $_endereco, _imagem1: $_imagem1, _imagem2: $_imagem2, _imagem3: $_imagem3, _status: $_status, _usuario: $_usuario, _dataPostagem: $_dataPostagem}';
   }
 }

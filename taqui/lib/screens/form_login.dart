@@ -240,17 +240,19 @@ class LoginState extends State<Login>{
         RaisedButton(
           onPressed: () async {
             FirebaseFirestore db = FirebaseFirestore.instance;
-            DocumentSnapshot doc = await db.collection("postagens")
-            .doc("B3FzDaA9NH4S7U5gYduz")
-            .get();
-            var dados = doc.data();
+
+            QuerySnapshot doc = await db.collection("postagens")
+            .where("endereco.latitude", isEqualTo: -23.6844081).get();
+
+            DocumentSnapshot dados = doc.docs[0];
+
             ObjetoPerdido objeto = ObjetoPerdido();
             Localizacao endereco = Localizacao();
             endereco.rua = dados["endereco"]["rua"];
             endereco.cep = dados["endereco"]["cep"];
             endereco.latitude = dados["endereco"]["latitude"];
             endereco.longitude = dados["endereco"]["longitude"];
-            objeto.id = "B3FzDaA9NH4S7U5gYduz";
+            objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
             objeto.endereco = endereco;
             objeto.descricao = dados["descricao"];
             objeto.usuario = dados["usuario"];
