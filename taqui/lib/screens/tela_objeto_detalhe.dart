@@ -36,24 +36,26 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   
   //função para acessar as mídias da galeria
   Future _pegarImgGaleria(int numeroImagem) async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
-    setState(() {
-      if (pickedFile != null) {
-        switch(numeroImagem){
-          case 1:
-            this._imagem1 = File(pickedFile.path);
-            break;
-          case 2:
-            this._imagem2 = File(pickedFile.path);
-            break;
-          case 3:
-            this._imagem3 = File(pickedFile.path);
-            break;
+    if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
+      final pickedFile = await picker.getImage(source: ImageSource.camera);
+      setState(() {
+        if (pickedFile != null) {
+          switch(numeroImagem){
+            case 1:
+              this._imagem1 = File(pickedFile.path);
+              break;
+            case 2:
+              this._imagem2 = File(pickedFile.path);
+              break;
+            case 3:
+              this._imagem3 = File(pickedFile.path);
+              break;
+          }
+        } else {
+          print('No image selected.');
         }
-      } else {
-        print('No image selected.');
-      }
-    });
+      });
+    }
   }
   void _removeImage(int numeroImagem){
     setState(() {
@@ -104,7 +106,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
         "rua": _endereco.rua,
         "cep": _endereco.cep
       },
-      "descricao": _controllerDescricao.text
+      "descricao": _controllerDescricao.text,
+      "dataPostagem": Timestamp.now()
     }).then((value) => _exibirMensagem("Sucesso","Os dados desse objeto foram atualizados com êxito!", "atualizar"));
   }
 
@@ -157,6 +160,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                       _retorna();
                       Navigator.pop(context);
                     } else {
+                      _carregaDados();
                       Navigator.pop(context);
                     }
                   },
@@ -171,6 +175,35 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   _retorna(){
     Timer(Duration(milliseconds: 500), (){
       Navigator.pop(context);
+    });
+  }
+
+  _carregaDados() async {
+    DocumentSnapshot doc = await _db.collection("postagens")
+        .doc("${widget.objetoPerdido.id}")
+        .get()
+        .then((value) {
+          
+      var dados = value.data();
+
+      setState(() {
+        widget.objetoPerdido.endereco.rua = dados["endereco"]["rua"];
+        widget.objetoPerdido.endereco.cep = dados["endereco"]["cep"];
+        widget.objetoPerdido.endereco.latitude = dados["endereco"]["latitude"];
+        widget.objetoPerdido.endereco.longitude = dados["endereco"]["longitude"];
+        widget.objetoPerdido.descricao = dados["descricao"];
+        widget.objetoPerdido.usuario = dados["usuario"];
+        widget.objetoPerdido.status = dados["status"];
+        widget.objetoPerdido.imagem1 = dados["imagem1"];
+
+        this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
+        this._controllerDescricao.text = widget.objetoPerdido.descricao;
+
+        _endereco.rua = widget.objetoPerdido.endereco.rua;
+        _endereco.latitude = widget.objetoPerdido.endereco.latitude;
+        _endereco.longitude = widget.objetoPerdido.endereco.longitude;
+        _endereco.cep = widget.objetoPerdido.endereco.cep;
+      });
     });
   }
 
@@ -210,8 +243,11 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                     children: <Widget>[
                       Expanded(
                         child: TextField(
+                          readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
                           onTap: () {
-                            _defineLocalizacao();
+                            if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
+                              _defineLocalizacao();
+                            }
                           },
                           keyboardType: TextInputType.text,
                           controller: _controllerLocalizacao,
@@ -237,7 +273,9 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                               size: 35,
                             ),
                             onPressed: (){
-                              _defineLocalizacao();
+                              if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
+                                _defineLocalizacao();
+                              }
                             }
                         )
                       ),
@@ -257,6 +295,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                     children: <Widget>[
                       Expanded(
                         child: TextField(
+                          readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
                           maxLines: 6,
                           keyboardType: TextInputType.text,
                           controller: _controllerDescricao,
@@ -312,7 +351,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                               Positioned(
                                 top: 5,
                                 right: 10,
-                                child: Container(
+                                child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                  Container(
                                     width: 25,
                                     height: 25,
                                     decoration: BoxDecoration(
@@ -362,7 +402,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                             Positioned(
                               top: 5,
                               right: 10,
-                              child: Container(
+                              child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                Container(
                                   width: 25,
                                   height: 25,
                                   decoration: BoxDecoration(
@@ -412,7 +453,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                             Positioned(
                               top: 5,
                               right: 10,
-                              child: Container(
+                              child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                Container(
                                   width: 25,
                                   height: 25,
                                   decoration: BoxDecoration(
@@ -436,111 +478,150 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                 SizedBox(
                   height: 20,
                 ),
+                widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ?
                 Container(
-                  height: 40,
-                  alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: [0.3,1],
-                      colors: [
-                        Color(0xFFF58524),
-                        Color(0xFFF92B7F),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8),
-                    ),
-                  ),
-                  child: SizedBox.expand(
-                    child:FlatButton(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 16),
                         child: Text(
-                          "Finalizar busca",
+                          "Top! Esse objeto já foi encontrado.",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
+                            fontSize: 18,
+                            color: Colors.green,
+                            // fontWeight: FontWeight.bold
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        onPressed: () {
-                          _finalizarBusca();
-                        }
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 40,
-                  alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: [0.3,1],
-                      colors: [
-                        Color(0xFFF58524),
-                        Color(0xFFF92B7F),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8),
-                    ),
-                  ),
-                  child: SizedBox.expand(
-                    child:FlatButton(
+                      ),
+                      Icon(
+                        Icons.where_to_vote_outlined,
+                        color: Colors.deepOrange,
+                        size: 75,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 16),
                         child: Text(
-                          "Salvar informações",
+                          "Se perdeu esse objeto novamente, crie uma nova postagem.",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
+                            fontSize: 16,
+                            color: Colors.grey,
+                            // fontWeight: FontWeight.bold
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        onPressed: (){
-                          _saveInfos();
-                        }
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 40,
-                  alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: [0.3,1],
-                      colors: [
-                        Color(0xFFF58524),
-                        Color(0xFFF92B7F),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8),
-                    ),
-                  ),
-                  child: SizedBox.expand(
-                    child:FlatButton(
-                        child: Text(
-                          "Excluir",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                          ),
-                          textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
+                ) :
+                Column(
+                  children: [
+                    Container(
+                      height: 40,
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.3,1],
+                          colors: [
+                            Color(0xFFF58524),
+                            Color(0xFFF92B7F),
+                          ],
                         ),
-                        onPressed: () {
-                          _excluirObjeto();
-                        }
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                      ),
+                      child: SizedBox.expand(
+                        child:FlatButton(
+                            child: Text(
+                              "Finalizar busca",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: () {
+                              _finalizarBusca();
+                            }
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 40,
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.3,1],
+                          colors: [
+                            Color(0xFFF58524),
+                            Color(0xFFF92B7F),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                      ),
+                      child: SizedBox.expand(
+                        child:FlatButton(
+                            child: Text(
+                              "Salvar informações",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: (){
+                              _saveInfos();
+                            }
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 40,
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.3,1],
+                          colors: [
+                            Color(0xFFF58524),
+                            Color(0xFFF92B7F),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                      ),
+                      child: SizedBox.expand(
+                        child:FlatButton(
+                            child: Text(
+                              "Excluir",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            onPressed: () {
+                              _excluirObjeto();
+                            }
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           )
