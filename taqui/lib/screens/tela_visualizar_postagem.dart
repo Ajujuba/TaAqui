@@ -1,5 +1,12 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:taqui/CustomSearchDelegate.dart';
+import 'package:taqui/models/Localizacao.dart';
 
 const _tituloAppBar = 'Detalhes da Postagem';
 
@@ -12,8 +19,52 @@ class VisualizarPostagem extends StatefulWidget {
 }
 
 class VisualizarPostagemState extends State<VisualizarPostagem> {
-
+  Localizacao _endereco = Localizacao();
   TextEditingController _controllerDescricao = TextEditingController();
+  TextEditingController _controllerLocalizacao = TextEditingController();
+  String imagem1;
+  String imagem2;
+  String imagem3;
+  String _urlFotoPerfil;
+  String userPostagem;
+  String nomeUserPostagem;
+  String idPostagem = "7fsH5J5GNbt9xyTbc0Zh";
+
+  _recuperarDadosPostagem() async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentSnapshot snapshot = await db.collection("postagens")
+        .doc(idPostagem)
+        .get();
+
+    Map<String, dynamic> dados = snapshot.data();
+      _controllerDescricao.text = dados["descricao"];
+      _controllerLocalizacao.text = dados["endereco"]["rua"];
+     imagem1 = dados["imagem1"];
+     imagem2 = dados["imagem2"];
+     imagem3 = dados["imagem3"];
+     userPostagem = dados["usuario"];
+      print(dados["usuario"]);
+      recuperarUrlFotoPerfil(userPostagem);
+  }
+
+  Future<void> recuperarUrlFotoPerfil(userPostagem) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    DocumentSnapshot snapshot = await db.collection("usuarios")
+        .doc(userPostagem)
+        .get();
+
+    Map<String, dynamic> dados = snapshot.data();
+      _urlFotoPerfil = dados["foto_perfil"];
+      nomeUserPostagem = dados["nome"];
+    print(dados['nome']);
+    print(dados['foto_perfil']);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recuperarDadosPostagem();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +80,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Row(
+               // mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Align(// foto do user
                     alignment: Alignment.centerLeft,
@@ -38,13 +90,17 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                       child: CircleAvatar(
                         backgroundColor: Colors.white,
                         radius: 40,
-                        backgroundImage: NetworkImage("https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"),
+                        backgroundImage: _urlFotoPerfil != null
+                            ? NetworkImage(_urlFotoPerfil)
+                            : NetworkImage(
+                            "https://us.123rf.com/450wm/urfandadashov/urfandadashov1809/urfandadashov180901275/109135379-.jpg?ver=6"
+                        ),
                       ),
                     ),
                   ),
                   Align( // nome do user
-                    alignment: Alignment.centerLeft,
-                    child: Text('Nome do user',
+                    alignment: Alignment.center,
+                    child: Text(nomeUserPostagem.toString() != null ? nomeUserPostagem.toString() : "Sem nome registrado",
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 20.0,
@@ -69,7 +125,39 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                   children: <Widget>[
                     Expanded(
                       child: TextField(
-                        maxLines: 8,
+                        enabled: false,
+                        keyboardType: TextInputType.text,
+                        controller: _controllerLocalizacao,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Localização",
+                          hintStyle: TextStyle(
+                              color: Colors.grey
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                        ),
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.5),
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextField(
+                        maxLines: 6,
                         enabled: false,
                         keyboardType: TextInputType.text,
                         controller: _controllerDescricao,
@@ -111,7 +199,9 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                         height: 150,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage("https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"),
+                            image: imagem1 != null
+                                ? NetworkImage(imagem1)
+                                : NetworkImage("https://www.danny.com.br/wp-content/uploads/2015/12/imagem-branca-grande.png"),
                           ),
                         ),
                       ),
@@ -131,7 +221,9 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                         height: 150,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage("https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"),
+                            image: imagem2 != null
+                                ? NetworkImage(imagem2)
+                                : NetworkImage("https://www.danny.com.br/wp-content/uploads/2015/12/imagem-branca-grande.png"),
                           ),
                         ),
                       ),
@@ -151,7 +243,9 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                         height: 150,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage("https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"),
+                            image:  imagem3 != null
+                                ? NetworkImage(imagem3)
+                                : NetworkImage("https://www.danny.com.br/wp-content/uploads/2015/12/imagem-branca-grande.png"),
                           ),
                         ),
                       ),
