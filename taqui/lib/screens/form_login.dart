@@ -242,7 +242,7 @@ class LoginState extends State<Login>{
             FirebaseFirestore db = FirebaseFirestore.instance;
 
             QuerySnapshot doc = await db.collection("postagens")
-            .where("endereco.latitude", isEqualTo: -23.6844081).get();
+            .where("endereco.latitude", isEqualTo: -23.680298999999998).get();
 
             DocumentSnapshot dados = doc.docs[0];
 

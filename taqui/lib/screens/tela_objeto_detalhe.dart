@@ -26,6 +26,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   TextEditingController _controllerLocalizacao = TextEditingController();
   TextEditingController _controllerDescricao = TextEditingController();
+  final _controller = StreamController<DocumentSnapshot>.broadcast();
 
   final laranja = Colors.deepOrange;
   final picker = ImagePicker();
@@ -160,7 +161,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                       _retorna();
                       Navigator.pop(context);
                     } else {
-                      _carregaDados();
+                     // _carregaDados();
                       Navigator.pop(context);
                     }
                   },
@@ -178,33 +179,48 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     });
   }
 
-  _carregaDados() async {
-    DocumentSnapshot doc = await _db.collection("postagens")
+  Stream<DocumentSnapshot> _adicionarListenerPostagem(){
+
+    final stream = _db
+        .collection("postagens")
         .doc("${widget.objetoPerdido.id}")
-        .get()
-        .then((value) {
-          
-      var dados = value.data();
+        .snapshots();
 
-      setState(() {
-        widget.objetoPerdido.endereco.rua = dados["endereco"]["rua"];
-        widget.objetoPerdido.endereco.cep = dados["endereco"]["cep"];
-        widget.objetoPerdido.endereco.latitude = dados["endereco"]["latitude"];
-        widget.objetoPerdido.endereco.longitude = dados["endereco"]["longitude"];
-        widget.objetoPerdido.descricao = dados["descricao"];
-        widget.objetoPerdido.usuario = dados["usuario"];
-        widget.objetoPerdido.status = dados["status"];
-        widget.objetoPerdido.imagem1 = dados["imagem1"];
-
-        this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
-        this._controllerDescricao.text = widget.objetoPerdido.descricao;
-
-        _endereco.rua = widget.objetoPerdido.endereco.rua;
-        _endereco.latitude = widget.objetoPerdido.endereco.latitude;
-        _endereco.longitude = widget.objetoPerdido.endereco.longitude;
-        _endereco.cep = widget.objetoPerdido.endereco.cep;
-      });
+    stream.listen((dados){
+      _controller.add(dados);
     });
+  }
+
+  _carregaDadosPostagem(DocumentSnapshot dados){
+      widget.objetoPerdido.endereco.rua = dados["endereco"]["rua"];
+      widget.objetoPerdido.endereco.cep = dados["endereco"]["cep"];
+      widget.objetoPerdido.endereco.latitude = dados["endereco"]["latitude"];
+      widget.objetoPerdido.endereco.longitude = dados["endereco"]["longitude"];
+      widget.objetoPerdido.descricao = dados["descricao"];
+      widget.objetoPerdido.usuario = dados["usuario"];
+      widget.objetoPerdido.status = dados["status"];
+      widget.objetoPerdido.imagem1 = dados["imagem1"];
+
+      this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
+      this._controllerDescricao.text = widget.objetoPerdido.descricao;
+
+      _endereco.rua = widget.objetoPerdido.endereco.rua;
+      _endereco.latitude = widget.objetoPerdido.endereco.latitude;
+      _endereco.longitude = widget.objetoPerdido.endereco.longitude;
+      _endereco.cep = widget.objetoPerdido.endereco.cep;
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _adicionarListenerPostagem();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.close();
   }
 
   @override
@@ -220,412 +236,451 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
 
     this.preencheImagens();
 
+    var stream = StreamBuilder(
+        stream: _controller.stream,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return Center(
+                child: Column(
+                  children: [
+                    Text("Carregando postagem"),
+                    CircularProgressIndicator()
+                  ],
+                ),
+              );
+              break;
+            case ConnectionState.active:
+            case ConnectionState.done:
+              DocumentSnapshot docSnapshot = snapshot.data;
+              if (snapshot.hasError) {
+                return Text("Erro ao carregar os dados");
+              } else {
+                _carregaDadosPostagem(docSnapshot);
+                return Expanded(
+                  child: Container(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: TextField(
+                                      readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
+                                      onTap: () {
+                                        if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
+                                          _defineLocalizacao();
+                                        }
+                                      },
+                                      keyboardType: TextInputType.text,
+                                      controller: _controllerLocalizacao,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Localização",
+                                        hintStyle: TextStyle(
+                                            color: Colors.grey
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.only(left: 8),
+                                      child: IconButton(
+                                          icon: Icon(
+                                            Icons.search,
+                                            color: laranja,
+                                            size: 35,
+                                          ),
+                                          onPressed: (){
+                                            if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
+                                              _defineLocalizacao();
+                                            }
+                                          }
+                                      )
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: TextField(
+                                      readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
+                                      maxLines: 6,
+                                      keyboardType: TextInputType.text,
+                                      controller: _controllerDescricao,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Descrição",
+                                        hintStyle: TextStyle(
+                                            color: Colors.grey
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Container(
+                                      height: 100,
+                                      width: 100,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          width: 1.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      child: this._imagem1 == null ?
+                                      GestureDetector(
+                                        onTap: (){
+                                          _pegarImgGaleria(1);
+                                        },
+                                        child: Icon(Icons.add, color: Colors.deepOrange),
+                                      )
+                                          : Stack(
+                                        children: <Widget>[
+                                          Container(
+                                            width: 180,
+                                            height: 150,
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: NetworkImage(this._imagem1.path),
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 5,
+                                            right: 10,
+                                            child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                            Container(
+                                                width: 25,
+                                                height: 25,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.deepOrange,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: GestureDetector(
+                                                  onTap: (){
+                                                    _removeImage(1);
+                                                  },
+                                                  child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                                )
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                  ),
+                                  Container(
+                                    //color: Colors.deepOrange,
+                                    height: 100,
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                    child: this._imagem2 == null ?
+                                    GestureDetector(
+                                      onTap: (){
+                                        _pegarImgGaleria(2);
+                                      },
+                                      child: Icon(Icons.add, color: Colors.deepOrange),
+                                    )
+                                        : Stack(
+                                      children: <Widget>[
+                                        Container(
+                                          width: 180,
+                                          height: 150,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(this._imagem2),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 5,
+                                          right: 10,
+                                          child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                          Container(
+                                              width: 25,
+                                              height: 25,
+                                              decoration: BoxDecoration(
+                                                color: Colors.deepOrange,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: (){
+                                                  _removeImage(2);
+                                                },
+                                                child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                              )
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    //color: Colors.deepOrange,
+                                    height: 100,
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                    child: this._imagem3 == null ?
+                                    GestureDetector(
+                                      onTap: (){
+                                        _pegarImgGaleria(3);
+                                      },
+                                      child: Icon(Icons.add, color: Colors.deepOrange),
+                                    )
+                                        : Stack(
+                                      children: <Widget>[
+                                        Container(
+                                          width: 180,
+                                          height: 150,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(this._imagem3),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 5,
+                                          right: 10,
+                                          child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
+                                          Container(
+                                              width: 25,
+                                              height: 25,
+                                              decoration: BoxDecoration(
+                                                color: Colors.deepOrange,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: (){
+                                                  _removeImage(3);
+                                                },
+                                                child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                              )
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ?
+                            Container(
+                                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(bottom: 16),
+                                      child: Text(
+                                        "Top! Esse objeto já foi encontrado.",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.green,
+                                          // fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.where_to_vote_outlined,
+                                      color: Colors.deepOrange,
+                                      size: 75,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 16),
+                                      child: Text(
+                                        "Se perdeu esse objeto novamente, crie uma nova postagem.",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                          // fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ) :
+                            Column(
+                              children: [
+                                Container(
+                                  height: 40,
+                                  alignment: Alignment.centerRight,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.3,1],
+                                      colors: [
+                                        Color(0xFFF58524),
+                                        Color(0xFFF92B7F),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: SizedBox.expand(
+                                    child:FlatButton(
+                                        child: Text(
+                                          "Finalizar busca",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        onPressed: () {
+                                          _finalizarBusca();
+                                        }
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  height: 40,
+                                  alignment: Alignment.centerRight,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.3,1],
+                                      colors: [
+                                        Color(0xFFF58524),
+                                        Color(0xFFF92B7F),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: SizedBox.expand(
+                                    child:FlatButton(
+                                        child: Text(
+                                          "Salvar informações",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        onPressed: (){
+                                          _saveInfos();
+                                        }
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  height: 40,
+                                  alignment: Alignment.centerRight,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.3,1],
+                                      colors: [
+                                        Color(0xFFF58524),
+                                        Color(0xFFF92B7F),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: SizedBox.expand(
+                                    child:FlatButton(
+                                        child: Text(
+                                          "Excluir",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        onPressed: () {
+                                          _excluirObjeto();
+                                        }
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      )
+                  )
+                );
+              }
+              break;
+          }
+        });
+
+
     return Scaffold(
       appBar: AppBar(
           title: Text("Detalhes do objeto")
       ),
       body: Container(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey.withOpacity(0.5),
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
-                          onTap: () {
-                            if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
-                              _defineLocalizacao();
-                            }
-                          },
-                          keyboardType: TextInputType.text,
-                          controller: _controllerLocalizacao,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Localização",
-                            hintStyle: TextStyle(
-                                color: Colors.grey
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                          ),
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: IconButton(
-                            icon: Icon(
-                              Icons.search,
-                              color: laranja,
-                              size: 35,
-                            ),
-                            onPressed: (){
-                              if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
-                                _defineLocalizacao();
-                              }
-                            }
-                        )
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey.withOpacity(0.5),
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
-                          maxLines: 6,
-                          keyboardType: TextInputType.text,
-                          controller: _controllerDescricao,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Descrição",
-                            hintStyle: TextStyle(
-                                color: Colors.grey
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                          ),
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey.withOpacity(0.5),
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: this._imagem1 == null ?
-                          GestureDetector(
-                            onTap: (){
-                              _pegarImgGaleria(1);
-                            },
-                            child: Icon(Icons.add, color: Colors.deepOrange),
-                          )
-                              : Stack(
-                            children: <Widget>[
-                              Container(
-                                width: 180,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage(this._imagem1.path),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                top: 5,
-                                right: 10,
-                                child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
-                                  Container(
-                                    width: 25,
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                      color: Colors.deepOrange,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: (){
-                                        _removeImage(1);
-                                      },
-                                      child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
-                                    )
-                                ),
-                              ),
-                            ],
-                          )
-                      ),
-                      Container(
-                        //color: Colors.deepOrange,
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(0.5),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: this._imagem2 == null ?
-                        GestureDetector(
-                          onTap: (){
-                            _pegarImgGaleria(2);
-                          },
-                          child: Icon(Icons.add, color: Colors.deepOrange),
-                        )
-                            : Stack(
-                          children: <Widget>[
-                            Container(
-                              width: 180,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: FileImage(this._imagem2),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 10,
-                              child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
-                                Container(
-                                  width: 25,
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepOrange,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: (){
-                                      _removeImage(2);
-                                    },
-                                    child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
-                                  )
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        //color: Colors.deepOrange,
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(0.5),
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: this._imagem3 == null ?
-                        GestureDetector(
-                          onTap: (){
-                            _pegarImgGaleria(3);
-                          },
-                          child: Icon(Icons.add, color: Colors.deepOrange),
-                        )
-                            : Stack(
-                          children: <Widget>[
-                            Container(
-                              width: 180,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: FileImage(this._imagem3),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 10,
-                              child: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? Container():
-                                Container(
-                                  width: 25,
-                                  height: 25,
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepOrange,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: (){
-                                      _removeImage(3);
-                                    },
-                                    child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
-                                  )
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ?
-                Container(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          "Top! Esse objeto já foi encontrado.",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.green,
-                            // fontWeight: FontWeight.bold
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.where_to_vote_outlined,
-                        color: Colors.deepOrange,
-                        size: 75,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 16),
-                        child: Text(
-                          "Se perdeu esse objeto novamente, crie uma nova postagem.",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            // fontWeight: FontWeight.bold
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ) :
-                Column(
-                  children: [
-                    Container(
-                      height: 40,
-                      alignment: Alignment.centerRight,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.3,1],
-                          colors: [
-                            Color(0xFFF58524),
-                            Color(0xFFF92B7F),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox.expand(
-                        child:FlatButton(
-                            child: Text(
-                              "Finalizar busca",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            onPressed: () {
-                              _finalizarBusca();
-                            }
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      height: 40,
-                      alignment: Alignment.centerRight,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.3,1],
-                          colors: [
-                            Color(0xFFF58524),
-                            Color(0xFFF92B7F),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox.expand(
-                        child:FlatButton(
-                            child: Text(
-                              "Salvar informações",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            onPressed: (){
-                              _saveInfos();
-                            }
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      height: 40,
-                      alignment: Alignment.centerRight,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.3,1],
-                          colors: [
-                            Color(0xFFF58524),
-                            Color(0xFFF92B7F),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox.expand(
-                        child:FlatButton(
-                            child: Text(
-                              "Excluir",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.0,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            onPressed: () {
-                              _excluirObjeto();
-                            }
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          )
-      ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              stream
+            ],
+          ),
+        ),
+      )
     );
   }
 }
