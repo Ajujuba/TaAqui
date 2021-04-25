@@ -87,7 +87,6 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     });
   }
   void _preencheImagens(){
-    print("PREENCHENDO IMAGEM");
       if(widget.objetoPerdido.imagem1 != null){
         this._imagem1 = File(widget.objetoPerdido.imagem1);
         this._network1 = true;
@@ -115,6 +114,10 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   }
   void _saveInfos() async{
 
+    String imagem1 = null;
+    String imagem2 = null;
+    String imagem3 = null;
+
     if(this._imagem1 != null && this._network1 == false){
       await this._enviarFoto(this._imagem1, 1);
     }
@@ -124,17 +127,66 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     if(this._imagem3 != null && this._network3 == false){
       await this._enviarFoto(this._imagem3, 3);
     }
-    _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .update({
-      "endereco": {
-        "latitude": _endereco.latitude,
-        "longitude": _endereco.longitude,
-        "rua": _endereco.rua,
-        "cep": _endereco.cep
-      },
-      "descricao": _controllerDescricao.text,
-      "dataPostagem": Timestamp.now()
-    }).then((value) => _exibirMensagem("Sucesso","Os dados desse objeto foram atualizados com êxito!", "atualizar"));
+    if(this._imagem1 == null && this._network1 == false){
+      imagem1 = "imagem1";
+    }
+    if(this._imagem2 == null && this._network2 == false){
+      imagem2 = "imagem2";
+    }
+    if(this._imagem3 == null && this._network3 == false){
+      imagem3 = "imagem3";
+    }
+
+    if(imagem1 == null && imagem2 == null && imagem3 == null){
+      _db.collection("postagens").doc(widget.objetoPerdido.id)
+          .update({
+        "endereco": {
+          "latitude": _endereco.latitude,
+          "longitude": _endereco.longitude,
+          "rua": _endereco.rua,
+          "cep": _endereco.cep
+        },
+        "descricao": _controllerDescricao.text
+      }).then((value) => _exibirMensagem("Sucesso","Os dados desse objeto foram atualizados com êxito!", "atualizar"));
+    } else {
+      Map<String, dynamic> dados = Map();
+      Map<String, dynamic> endereco = Map();
+
+      endereco["latitude"] = _endereco.latitude;
+      endereco["longitude"] = _endereco.longitude;
+      endereco["rua"] = _endereco.rua;
+      endereco["cep"] = _endereco.cep;
+
+      dados["endereco"] = endereco;
+      dados["descricao"] = _controllerDescricao.text;
+
+      if(imagem1 != null && imagem2 != null && imagem3 != null){
+        dados["imagem1"] = "";
+        dados["imagem2"] = "";
+        dados["imagem3"] = "";
+      } else if(imagem1 != null && imagem2 != null && imagem3 == null){
+        dados["imagem1"] = "";
+        dados["imagem2"] = "";
+      } else if(imagem1 != null && imagem2 == null && imagem3 != null){
+        dados["imagem1"] = "";
+        dados["imagem3"] = "";
+      } else if(imagem1 == null && imagem2 != null && imagem3 != null){
+        dados["imagem2"] = "";
+        dados["imagem3"] = "";
+      } else if(imagem1 != null && imagem2 == null && imagem3 == null){
+        dados["imagem1"] = "";
+      } else if(imagem1 == null && imagem2 != null && imagem3 == null){
+        dados["imagem2"] = "";;
+      } else if(imagem1 == null && imagem2 == null && imagem3 != null){
+        dados["imagem3"] = "";
+      }
+      print(dados.toString());
+      _db.collection("postagens").doc(widget.objetoPerdido.id)
+          .update(dados).then((value) =>
+          _exibirMensagem(
+              "Sucesso", "Os dados desse objeto foram atualizados com êxito!",
+              "atualizar"));
+    }
   }
 
   void _excluirObjeto() async {
