@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/CustomSearchDelegate.dart';
 import 'package:taqui/enums/StatusObjeto.dart';
@@ -24,12 +25,18 @@ class ObjetoDetalhe extends StatefulWidget {
 class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   Localizacao _endereco = Localizacao();
   FirebaseFirestore _db = FirebaseFirestore.instance;
+  bool _subindoImagem = false;
+
   TextEditingController _controllerLocalizacao = TextEditingController();
   TextEditingController _controllerDescricao = TextEditingController();
-  final _controller = StreamController<DocumentSnapshot>.broadcast();
 
+  final _controller = StreamController<DocumentSnapshot>.broadcast();
   final laranja = Colors.deepOrange;
   final picker = ImagePicker();
+
+  bool _network1 = false;
+  bool _network2 = false;
+  bool _network3 = false;
 
   File _imagem1 = null;
   File _imagem2 = null;
@@ -38,18 +45,21 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   //função para acessar as mídias da galeria
   Future _pegarImgGaleria(int numeroImagem) async {
     if(widget.objetoPerdido.status != StatusObjeto.ENCONTRADO){
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
+      final pickedFile = await picker.getImage(source: ImageSource.gallery);
       setState(() {
         if (pickedFile != null) {
           switch(numeroImagem){
             case 1:
               this._imagem1 = File(pickedFile.path);
+              this._network1 = false;
               break;
             case 2:
               this._imagem2 = File(pickedFile.path);
+              this._network2 = false;
               break;
             case 3:
               this._imagem3 = File(pickedFile.path);
+              this._network3 = false;
               break;
           }
         } else {
@@ -63,28 +73,33 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
       switch(numeroImagem){
         case 1:
           this._imagem1 = null;
+          this._network1 = false;
           break;
         case 2:
           this._imagem2 = null;
+          this._network2 = false;
           break;
         case 3:
           this._imagem3 = null;
+          this._network3 = false;
           break;
       }
     });
   }
-  void preencheImagens(){
-    setState(() {
+  void _preencheImagens(){
+    print("PREENCHENDO IMAGEM");
       if(widget.objetoPerdido.imagem1 != null){
         this._imagem1 = File(widget.objetoPerdido.imagem1);
+        this._network1 = true;
       }
       if(widget.objetoPerdido.imagem2 != null){
         this._imagem2 = File(widget.objetoPerdido.imagem2);
+        this._network2 = true;
       }
       if(widget.objetoPerdido.imagem3 != null){
         this._imagem3 = File(widget.objetoPerdido.imagem3);
+        this._network3 = true;
       }
-    });
   }
 
   void _defineLocalizacao() async {
@@ -99,6 +114,16 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     }
   }
   void _saveInfos() async{
+
+    if(this._imagem1 != null && this._network1 == false){
+      await this._enviarFoto(this._imagem1, 1);
+    }
+    if(this._imagem2 != null && this._network2 == false){
+      await this._enviarFoto(this._imagem2, 2);
+    }
+    if(this._imagem3 != null && this._network3 == false){
+      await this._enviarFoto(this._imagem3, 3);
+    }
     _db.collection("postagens").doc(widget.objetoPerdido.id)
         .update({
       "endereco": {
@@ -211,10 +236,55 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
 
   }
 
+  _enviarFoto(File imagemSelecionada, int numeroImagem) async {
+    _subindoImagem = true;
+    String nomeImagem = DateTime.now().millisecondsSinceEpoch.toString();
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference pastaRaiz = storage.ref();
+    Reference arquivo = pastaRaiz.child("postagens")
+        .child("${widget.objetoPerdido.id}")
+        .child(nomeImagem + ".jpg");
+    UploadTask task = arquivo.putFile(imagemSelecionada);
+
+    task.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+      if(taskSnapshot.state == TaskState.running){
+        setState(() {
+          _subindoImagem = true;
+        });
+      } else if(taskSnapshot.state == TaskState.success){
+        setState(() {
+          _subindoImagem = false;
+          _recuperarUrlImagem(taskSnapshot, numeroImagem);
+        });
+      }
+    });
+  }
+  Future _recuperarUrlImagem(TaskSnapshot taskSnapshot, int numeroImagem) async {
+    String url = await taskSnapshot.ref.getDownloadURL();
+    String campo;
+    switch(numeroImagem){
+      case 1:
+        campo = "imagem1";
+        break;
+      case 2:
+        campo = "imagem2";
+        break;
+      default:
+        campo = "imagem3";
+    }
+    _db.collection("postagens").doc(widget.objetoPerdido.id)
+        .update({
+            campo: url,
+    });
+    //this._preencheImagens();
+  }
+
   @override
   void initState() {
     super.initState();
     _adicionarListenerPostagem();
+    this._preencheImagens();
   }
 
   @override
@@ -233,8 +303,6 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     _endereco.latitude = widget.objetoPerdido.endereco.latitude;
     _endereco.longitude = widget.objetoPerdido.endereco.longitude;
     _endereco.cep = widget.objetoPerdido.endereco.cep;
-
-    this.preencheImagens();
 
     var stream = StreamBuilder(
         stream: _controller.stream,
@@ -257,7 +325,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
               if (snapshot.hasError) {
                 return Text("Erro ao carregar os dados");
               } else {
-                _carregaDadosPostagem(docSnapshot);
+                this._carregaDadosPostagem(docSnapshot);
+               // this._preencheImagens();
                 return Expanded(
                   child: Container(
                       child: SingleChildScrollView(
@@ -379,7 +448,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                             height: 150,
                                             decoration: BoxDecoration(
                                               image: DecorationImage(
-                                                image: NetworkImage(this._imagem1.path),
+                                                image: this._network1 ? NetworkImage(this._imagem1.path) : FileImage(this._imagem1),
                                               ),
                                             ),
                                           ),
@@ -430,7 +499,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                           height: 150,
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
-                                              image: FileImage(this._imagem2),
+                                              image: this._network2 ? NetworkImage(this._imagem2.path) : FileImage(this._imagem2),
                                             ),
                                           ),
                                         ),
@@ -481,7 +550,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                           height: 150,
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
-                                              image: FileImage(this._imagem3),
+                                              image: this._network3 ? NetworkImage(this._imagem3.path) : FileImage(this._imagem3),
                                             ),
                                           ),
                                         ),

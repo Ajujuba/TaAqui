@@ -257,7 +257,9 @@ class LoginState extends State<Login>{
             objeto.descricao = dados["descricao"];
             objeto.usuario = dados["usuario"];
             objeto.status = dados["status"];
-            objeto.imagem1 = dados["imagem1"];
+            objeto.imagem1 = dados["imagem1"] != "" ? dados["imagem1"] : null;
+            objeto.imagem2 = dados["imagem2"] != "" ? dados["imagem2"] : null;
+            objeto.imagem3 = dados["imagem3"] != "" ? dados["imagem3"] : null;
 
             Navigator.push(
                 context,
