@@ -1,12 +1,12 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:taqui/CustomSearchDelegate.dart';
 import 'package:taqui/models/Localizacao.dart';
+import 'package:taqui/models/Usuario.dart';
+import 'package:taqui/screens/tela_mensagens.dart';
 
 const _tituloAppBar = 'Detalhes da Postagem';
 
@@ -28,7 +28,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
   String _urlFotoPerfil;
   String userPostagem;
   String nomeUserPostagem;
-  String idPostagem = "7fsH5J5GNbt9xyTbc0Zh";
+  String idPostagem = "N9e1kGK3g6R4e3nw5qIA";
 
   _recuperarDadosPostagem() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -37,12 +37,14 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
         .get();
 
     Map<String, dynamic> dados = snapshot.data();
-      _controllerDescricao.text = dados["descricao"];
-      _controllerLocalizacao.text = dados["endereco"]["rua"];
-     imagem1 = dados["imagem1"];
-     imagem2 = dados["imagem2"];
-     imagem3 = dados["imagem3"];
-     userPostagem = dados["usuario"];
+     setState(() {
+       _controllerDescricao.text = dados["descricao"];
+       _controllerLocalizacao.text = dados["endereco"]["rua"];
+       imagem1 = dados["imagem1"];
+       imagem2 = dados["imagem2"];
+       imagem3 = dados["imagem3"];
+       userPostagem = dados["usuario"];
+     });
       print(dados["usuario"]);
       recuperarUrlFotoPerfil(userPostagem);
   }
@@ -54,16 +56,34 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
         .get();
 
     Map<String, dynamic> dados = snapshot.data();
+    setState(() {
       _urlFotoPerfil = dados["foto_perfil"];
       nomeUserPostagem = dados["nome"];
+    });
     print(dados['nome']);
     print(dados['foto_perfil']);
+  }
+
+  chamarChat(){
+    Usuario usuario = Usuario();
+    usuario.nome = nomeUserPostagem;
+    usuario.urlImagem = _urlFotoPerfil;
+    usuario.idUsuario = userPostagem;
+    print(userPostagem);
+    print(_urlFotoPerfil);
+    print(userPostagem);
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Mensagens(usuario))
+    );
   }
 
   @override
   void initState() {
     super.initState();
+    recuperarUrlFotoPerfil(userPostagem);
     _recuperarDadosPostagem();
+    recuperarUrlFotoPerfil(userPostagem);
   }
 
   @override
@@ -100,7 +120,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                   ),
                   Align( // nome do user
                     alignment: Alignment.center,
-                    child: Text(nomeUserPostagem.toString() != null ? nomeUserPostagem.toString() : "Sem nome registrado",
+                    child: Text(nomeUserPostagem.toString() != null ? nomeUserPostagem.toString() : '',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 20.0,
@@ -293,6 +313,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                       ],
                     ),
                     onPressed: () {
+                      chamarChat();
                     }
                   ),
                 ),
