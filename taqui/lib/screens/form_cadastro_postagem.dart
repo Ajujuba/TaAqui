@@ -26,7 +26,13 @@ class CadastroPostagemState extends State<CadastroPostagem> {
   String localizacao = "";
   String desc = "";
 
+  final laranja = Colors.deepOrange;
   final picker = ImagePicker();
+
+  bool _network1 = false;
+  bool _network2 = false;
+  bool _network3 = false;
+
   File _imagem1 = null;
   File _imagem2 = null;
   File _imagem3 = null;
@@ -113,272 +119,290 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     }
 
     Widget _formPostagem(){
-      return ListView( // inseri um ListView para permitir scroll na tela
-        children: <Widget>[
-          TextFormField( // Bloco referente ao input da localização
-            keyboardType: TextInputType.text,
-            onSaved: (String val) {
-              localizacao = val;
-            },
-            decoration: InputDecoration(
-              labelText: "Localização",
-              icon: Icon(Icons.zoom_in),
-              labelStyle: TextStyle(
-                color: Colors.black38,
-                fontSize: 18.0,
-              ),
-            ),
-            style: TextStyle(
-              fontSize: 18.0,
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-              child: TextFormField( // Bloco referente ao input da postagem
-                keyboardType: TextInputType.text,
-                onSaved: (String val) {
-                  postagem = val;
-                },
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
-                  labelText: "Nome da postagem",
-                  labelStyle: TextStyle(
-                    color: Colors.black38,
-                    fontSize: 18.0,
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              )
-          ),
-
-          Container(
-              child: TextFormField( // Bloco referente ao input da descrição
-                keyboardType: TextInputType.text,
-                onSaved: (String val) {
-                  desc = val;
-                },
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 150),
-                  labelText: "Descrição do objeto...",
-                  labelStyle: TextStyle(
-                    color: Colors.black38,
-                    fontSize: 18.0,
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              )
-          ),
-          SizedBox(
-            height: 5,
-          ),
-
-         // Adicionar container de imagens
-          Container(
-            margin: EdgeInsets.only(top: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey.withOpacity(0.5),
-                        width: 1.0,
+      return Expanded(
+          child: Container(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.withOpacity(0.5),
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: this._imagem1 == null ?
-                    GestureDetector(
-                      onTap: (){
-                        _pegarImgGaleria(1);
-                      },
-                      child: Icon(Icons.add, color: Colors.deepOrange),
-                    )
-                        : Stack(
-                      children: <Widget>[
-                        Container(
-                          width: 180,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: FileImage(this._imagem1),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              readOnly: false,
+                              onTap: () { },
+                              keyboardType: TextInputType.text,
+                              //controller: _controllerLocalizacao,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Localização",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey
+                                ),
+                                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                              ),
+                              style: TextStyle(
+                                fontSize: 18.0,
+                              ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 5,
-                          right: 10,
-                          child: Container(
-                              width: 25,
-                              height: 25,
-                              decoration: BoxDecoration(
-                                color: Colors.deepOrange,
-                                shape: BoxShape.circle,
-                              ),
-                              child: GestureDetector(
-                                onTap: (){
-                                  _removeImage(1);
-                                },
-                                child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                          Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: IconButton(
+                                  icon: Icon(
+                                    Icons.search,
+                                    color: laranja,
+                                    size: 35,
+                                  ),
+                                  onPressed: (){ }
                               )
                           ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.withOpacity(0.5),
+                          width: 1.0,
                         ),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              readOnly: false,
+                              maxLines: 6,
+                              keyboardType: TextInputType.text,
+                              //controller: _controllerDescricao,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Descrição",
+                                hintStyle: TextStyle(
+                                    color: Colors.grey
+                                ),
+                                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                              ),
+                              style: TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: this._imagem1 == null ?
+                              GestureDetector(
+                                onTap: (){
+                                  _pegarImgGaleria(1);
+                                },
+                                child: Icon(Icons.add, color: Colors.deepOrange),
+                              )
+                                  : Stack(
+                                children: <Widget>[
+                                  Container(
+                                    width: 180,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: this._network1 ? NetworkImage(this._imagem1.path) : FileImage(this._imagem1),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 5,
+                                    right: 10,
+                                    child: Container(
+                                        width: 25,
+                                        height: 25,
+                                        decoration: BoxDecoration(
+                                          color: Colors.deepOrange,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: (){
+                                            _removeImage(1);
+                                          },
+                                          child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                        )
+                                    ),
+                                  ),
+                                ],
+                              )
+                          ),
+                          Container(
+                            //color: Colors.deepOrange,
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.5),
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: this._imagem2 == null ?
+                            GestureDetector(
+                              onTap: (){
+                                _pegarImgGaleria(2);
+                              },
+                              child: Icon(Icons.add, color: Colors.deepOrange),
+                            )
+                                : Stack(
+                              children: <Widget>[
+                                Container(
+                                  width: 180,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: this._network2 ? NetworkImage(this._imagem2.path) : FileImage(this._imagem2),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 5,
+                                  right: 10,
+                                  child: Container(
+                                      width: 25,
+                                      height: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.deepOrange,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: (){
+                                          _removeImage(2);
+                                        },
+                                        child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                      )
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            //color: Colors.deepOrange,
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.5),
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: this._imagem3 == null ?
+                            GestureDetector(
+                              onTap: (){
+                                _pegarImgGaleria(3);
+                              },
+                              child: Icon(Icons.add, color: Colors.deepOrange),
+                            )
+                                : Stack(
+                              children: <Widget>[
+                                Container(
+                                  width: 180,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: this._network3 ? NetworkImage(this._imagem3.path) : FileImage(this._imagem3),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 5,
+                                  right: 10,
+                                  child: Container(
+                                      width: 25,
+                                      height: 25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.deepOrange,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: (){
+                                          _removeImage(3);
+                                        },
+                                        child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
+                                      )
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          height: 40,
+                          alignment: Alignment.centerRight,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              stops: [0.3,1],
+                              colors: [
+                                Color(0xFFF58524),
+                                Color(0xFFF92B7F),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(8),
+                            ),
+                          ),
+                          child: SizedBox.expand(
+                            child:FlatButton(
+                                child: Text(
+                                  "Cadastrar postagem!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.0,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                onPressed: () { }
+                            ),
+                          ),
+                        ),
+                        
                       ],
                     )
+                  ],
                 ),
-                Container(
-                  //color: Colors.deepOrange,
-                  height: 100,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey.withOpacity(0.5),
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: this._imagem2 == null ?
-                  GestureDetector(
-                    onTap: (){
-                      _pegarImgGaleria(2);
-                    },
-                    child: Icon(Icons.add, color: Colors.deepOrange),
-                  )
-                      : Stack(
-                    children: <Widget>[
-                      Container(
-                        width: 180,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: FileImage(this._imagem2),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: 10,
-                        child: Container(
-                            width: 25,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              color: Colors.deepOrange,
-                              shape: BoxShape.circle,
-                            ),
-                            child: GestureDetector(
-                              onTap: (){
-                                _removeImage(2);
-                              },
-                              child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
-                            )
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  //color: Colors.deepOrange,
-                  height: 100,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey.withOpacity(0.5),
-                      width: 1.0,
-                    ),
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: this._imagem3 == null ?
-                  GestureDetector(
-                    onTap: (){
-                      _pegarImgGaleria(3);
-                    },
-                    child: Icon(Icons.add, color: Colors.deepOrange),
-                  )
-                      : Stack(
-                    children: <Widget>[
-                      Container(
-                        width: 180,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: FileImage(this._imagem3),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: 10,
-                        child: Container(
-                            width: 25,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              color: Colors.deepOrange,
-                              shape: BoxShape.circle,
-                            ),
-                            child: GestureDetector(
-                              onTap: (){
-                                _removeImage(3);
-                              },
-                              child: Icon(Icons.delete_forever_outlined, color: Colors.white,),
-                            )
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(
-            height: 5,
-          ),
-
-          Container( // container que define o fundo do botão
-            height: 50,
-            alignment: Alignment.centerRight,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0.3,1],
-                colors: [
-                  Color(0xFFF58524), //decidir cores posteriormente
-                  Color(0xFFF92B7F),
-                ],
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
-              ),
-            ),
-            child: SizedBox.expand(
-              child:TextButton(
-                child: Container(
-                  child:
-                  Text('Cadastrar',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-                onPressed: () {
-                  criarPostagem();
-
-                },
-                style: TextButton.styleFrom(
-                  primary: Colors.black,
-                  backgroundColor: Colors.lightBlue,
-                  side: BorderSide(color: Colors.grey, width: 2),
-                ),)
-            ),
-          ),
-        ],
+              )
+          )
       );
     }
 }

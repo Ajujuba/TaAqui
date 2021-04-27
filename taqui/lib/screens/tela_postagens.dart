@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/screens/form_cadastro_postagem.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,6 +23,7 @@ class PostagensUsuario extends StatefulWidget {
 
 class PostagensUsuarioState extends State<PostagensUsuario> {
   final laranja = Colors.deepOrange;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   void _novapostagem(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => CadastroPostagem()));
@@ -28,6 +31,8 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
 
   @override
   Widget build(BuildContext context) {
+
+
     List<int> posts = [for (var i = 1; i <= 23; i++) i]; // Resultados do DB
     return Scaffold(
       appBar: AppBar( // define um titulo pra tela
@@ -58,29 +63,67 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
                             itemBuilder: (BuildContext context, int index) {
                               return Column(
                                 children: [
-                                    Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                    ConstrainedBox(constraints: BoxConstraints.tightFor(width: 250, height: 40),
-                                      child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            ObjetoPerdido objeto = ObjetoPerdido(); //ObjetoPerdido.con("Endereço da Postagem ${posts[index]}", "Descrição da Postagem ${posts[index]}");
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
-                                            );
-                                          },
-                                          icon: Text('Postagem ${posts[index]}',
-                                              style: TextStyle(color: Colors.black)
+                                  Container(
+                                    height: 40,
+                                    alignment: Alignment.centerRight,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        stops: [0.3,1],
+                                        colors: [
+                                          Color(0xFFF58524),
+                                          Color(0xFFF92B7F),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: SizedBox.expand(
+                                      child:ElevatedButton.icon(
+                                          icon: Text(
+                                            "Postagem ${posts[index]}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16.0,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
                                           label: Icon(
                                             Icons.edit,
                                             color: Colors.black,
-                                          )
+                                          ),
+                                          onPressed: () async {
+
+                                            QuerySnapshot doc = await db.collection("postagens")
+                                                .where("endereco.latitude", isEqualTo: -23.680298999999998).get();
+
+                                            DocumentSnapshot dados = doc.docs[0];
+
+                                            ObjetoPerdido objeto = ObjetoPerdido();
+                                            Localizacao endereco = Localizacao();
+                                            endereco.rua = dados["endereco"]["rua"];
+                                            endereco.cep = dados["endereco"]["cep"];
+                                            endereco.latitude = dados["endereco"]["latitude"];
+                                            endereco.longitude = dados["endereco"]["longitude"];
+                                            objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
+                                            objeto.endereco = endereco;
+                                            objeto.descricao = dados["descricao"];
+                                            objeto.usuario = dados["usuario"];
+                                            objeto.status = dados["status"];
+                                            objeto.imagem1 = dados["imagem1"] != "" ? dados["imagem1"] : null;
+                                            objeto.imagem2 = dados["imagem2"] != "" ? dados["imagem2"] : null;
+                                            objeto.imagem3 = dados["imagem3"] != "" ? dados["imagem3"] : null;
+
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
+                                            );
+                                          }
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
                                   SizedBox(height: 10)
                                 ]
                               );
