@@ -42,7 +42,7 @@ class _ListagemChatsState extends State<ListagemChats> {
     User usuarioLogado = await auth.currentUser;
 
     setState(() {
-      _idUsuarioLogado = usuarioLogado.uid;
+      _idUsuarioLogado = usuarioLogado.email;
       print(_idUsuarioLogado);
     });
 

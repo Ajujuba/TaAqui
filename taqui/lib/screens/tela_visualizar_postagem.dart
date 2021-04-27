@@ -28,7 +28,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
   String _urlFotoPerfil;
   String userPostagem;
   String nomeUserPostagem;
-  String idPostagem = "N9e1kGK3g6R4e3nw5qIA";
+  String idPostagem = "7fsH5J5GNbt9xyTbc0Zh";
 
   _recuperarDadosPostagem() async {
     FirebaseFirestore db = FirebaseFirestore.instance;

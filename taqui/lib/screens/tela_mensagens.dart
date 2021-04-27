@@ -130,7 +130,7 @@ class _MensagensState extends State<Mensagens> {
     var user = snapshot.data();
 
     setState(() {
-      _idUsuarioLogado = usuarioLogado.uid;
+      _idUsuarioLogado = usuarioLogado.email;
       _idUsuarioDestinatario = widget.contato.idUsuario;
       _usuarioLogado.nome = user["nome"];
       _usuarioLogado.urlImagem = user["foto_perfil"];
