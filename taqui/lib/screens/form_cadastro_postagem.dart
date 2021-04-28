@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 const _tituloAppBar = 'Cadastro de Postagem';
 
@@ -21,6 +23,9 @@ class CadastroPostagem extends StatefulWidget{
 class CadastroPostagemState extends State<CadastroPostagem> {
   GlobalKey<FormState> _key = new GlobalKey(); // chave
   bool _validate = false;
+
+  TextEditingController _controllerLocalizacao = TextEditingController();
+  TextEditingController _controllerDescricao = TextEditingController();
 
   String postagem = "";
   String localizacao = "";
@@ -79,20 +84,30 @@ class CadastroPostagemState extends State<CadastroPostagem> {
   criarPostagem() async{
     FirebaseFirestore db = FirebaseFirestore.instance;
     FirebaseAuth auth = FirebaseAuth.instance;
-    String usuarioLogado = auth.currentUser.uid.toString();
 
-    DocumentReference documento = db.collection("postagens")
-        .doc(postagem);
-    
-    documento.set({
-      "usuario" : usuarioLogado,
-      "postagem" : postagem,
-      "localizacao" : localizacao,
-      "descricao" : desc,
+    CollectionReference postagens = db.collection("postagens");
+        User usuarioLogado = auth.currentUser;
+
+    Map<String,dynamic> dados = {
+      "dataPostagem": "teste",
+      "descricao" : _controllerDescricao.text,
+      "endereco": _controllerLocalizacao.text,
       "imagem1" : _imagem1,
-      "imagem2" : _imagem2,
-      "imagem3" : _imagem3,
-    });
+      "status"  : "PERDIDO",
+      "usuario" : usuarioLogado,
+    };
+
+    postagens.add(dados);
+    Fluttertoast.showToast(
+        msg: "Postagem cadastrada!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.SNACKBAR,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.lightGreen,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
+    Navigator.pop(context);
 
   }
 
@@ -142,7 +157,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                               readOnly: false,
                               onTap: () { },
                               keyboardType: TextInputType.text,
-                              //controller: _controllerLocalizacao,
+                              controller: _controllerLocalizacao,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Localização",
@@ -186,7 +201,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                               readOnly: false,
                               maxLines: 6,
                               keyboardType: TextInputType.text,
-                              //controller: _controllerDescricao,
+                              controller: _controllerDescricao,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: "Descrição",
@@ -392,7 +407,9 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                onPressed: () { }
+                                onPressed: () {
+                                  criarPostagem();
+                                }
                             ),
                           ),
                         ),
