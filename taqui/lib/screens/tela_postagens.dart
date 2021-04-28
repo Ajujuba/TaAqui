@@ -31,9 +31,14 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
 
   @override
   Widget build(BuildContext context) {
-
-
-    List<int> posts = [for (var i = 1; i <= 23; i++) i]; // Resultados do DB
+    meusDocs() async {
+      QuerySnapshot doc = await db.collection("postagens")
+          .where("usuario", isEqualTo: "teste1@gmail.com").get();
+      List<DocumentSnapshot> postagensUsuario = doc.docs;
+      int postagensFinal = postagensUsuario.length;
+      return postagensFinal;
+    }
+    List<int> posts = [for (var i = 1; i <= 5; i++) i]; // Resultados do DB
     return Scaffold(
       appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
