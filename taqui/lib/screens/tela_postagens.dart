@@ -31,131 +31,132 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
 
   @override
   Widget build(BuildContext context) {
-    meusDocs() async {
-      QuerySnapshot doc = await db.collection("postagens")
-          .where("usuario", isEqualTo: "teste1@gmail.com").get();
-      List<DocumentSnapshot> postagensUsuario = doc.docs;
-      int postagensFinal = postagensUsuario.length;
-      return postagensFinal;
-    }
-    List<int> posts = [for (var i = 1; i <= 5; i++) i]; // Resultados do DB
     return Scaffold(
       appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
       ),
-      body: Builder(
-          builder: (context) =>
-              Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Align(
-                      alignment: Alignment.center,
-                        child: Text(
-                          'Minhas postagens',
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .headline4,
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: ListView.builder(
-                            itemCount: posts.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Column(
-                                children: [
-                                  Container(
-                                    height: 40,
-                                    alignment: Alignment.centerRight,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        stops: [0.3,1],
-                                        colors: [
-                                          Color(0xFFF58524),
-                                          Color(0xFFF92B7F),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(8),
-                                      ),
-                                    ),
-                                    child: SizedBox.expand(
-                                      child:ElevatedButton.icon(
-                                          icon: Text(
-                                            "Postagem ${posts[index]}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16.0,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          label: Icon(
-                                            Icons.edit,
-                                            color: Colors.black,
-                                          ),
-                                          onPressed: () async {
-
-                                            QuerySnapshot doc = await db.collection("postagens")
-                                                .where("endereco.latitude", isEqualTo: -23.680298999999998).get();
-
-                                            DocumentSnapshot dados = doc.docs[0];
-
-                                            ObjetoPerdido objeto = ObjetoPerdido();
-                                            Localizacao endereco = Localizacao();
-                                            endereco.rua = dados["endereco"]["rua"];
-                                            endereco.cep = dados["endereco"]["cep"];
-                                            endereco.latitude = dados["endereco"]["latitude"];
-                                            endereco.longitude = dados["endereco"]["longitude"];
-                                            objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
-                                            objeto.endereco = endereco;
-                                            objeto.descricao = dados["descricao"];
-                                            objeto.usuario = dados["usuario"];
-                                            objeto.status = dados["status"];
-                                            objeto.imagem1 = dados["imagem1"] != "" ? dados["imagem1"] : null;
-                                            objeto.imagem2 = dados["imagem2"] != "" ? dados["imagem2"] : null;
-                                            objeto.imagem3 = dados["imagem3"] != "" ? dados["imagem3"] : null;
-
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
-                                            );
-                                          }
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10)
-                                ]
-                              );
-                            },
-                          ),
-                        )
-                      ),
-                      Container(
-                        height: 50.0,
-                        width: 300.0,
-                        margin: EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                            color: laranja,
-                            borderRadius: BorderRadius.all(Radius.circular(15))
-                        ),
-                        child:
-                          TextButton(
-                              child: Container(
-                                child:
-                                  Text('Criar nova postagem',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.black),
-                                    ),
+      body: StreamBuilder(
+        stream: db.collection('postagens').where("usuario", isEqualTo: "teste1@gmail.com").snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> dados) =>
+        dados.connectionState == ConnectionState.none
+        ? Center(child: CircularProgressIndicator(),)
+        : Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Minhas postagens',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline4,
+                ),
+              ),
+              Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: ListView.builder(
+                      itemCount: dados.data.docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot data = dados.data.docs[index];
+                        return Column(
+                        children: [
+                          Container(
+                            height: 40,
+                            alignment: Alignment.centerRight,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                stops: [0.3,1],
+                                colors: [
+                                  Color(0xFFF58524),
+                                  Color(0xFFF92B7F),
+                                ],
                               ),
-                              onPressed: () { _novapostagem(context); },
-                              style: TextButton.styleFrom(
-                                  primary: Colors.black,
-                                  backgroundColor: Colors.lightBlue,
-                                  side: BorderSide(color: Colors.grey, width: 2),
-                              ),),)]))));}}
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
+                            ),
+                            child: SizedBox.expand(
+                              child:ElevatedButton.icon(
+                                  icon: Text(
+                                    "Postagem ${index+1}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  label: Icon(
+                                    Icons.edit,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () async {
+
+                                    ObjetoPerdido objeto = ObjetoPerdido();
+                                    Localizacao endereco = Localizacao();
+                                    endereco.rua = data["endereco"]["rua"];
+                                    endereco.cep = data["endereco"]["cep"];
+                                    endereco.latitude = data["endereco"]["latitude"];
+                                    endereco.longitude = data["endereco"]["longitude"];
+                                    objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
+                                    objeto.endereco = endereco;
+                                    objeto.descricao = data["descricao"];
+                                    objeto.usuario = data["usuario"];
+                                    objeto.status = data["status"];
+                                    objeto.imagem1 = data["imagem1"] != "" ? data["imagem1"] : null;
+                                    objeto.imagem2 = data["imagem2"] != "" ? data["imagem2"] : null;
+                                    objeto.imagem3 = data["imagem3"] != "" ? data["imagem3"] : null;
+
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
+                                    );
+                                  }
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10)
+                        ]
+                      );
+                      },
+                    ),
+                  )
+              ),
+              Container(
+                height: 50.0,
+                width: 300.0,
+                margin: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                    color: laranja,
+                    borderRadius: BorderRadius.all(Radius.circular(15))
+                ),
+                child:
+                TextButton(
+                  child: Container(
+                    child:
+                    Text('Criar nova postagem',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  onPressed: () { _novapostagem(context); },
+                  style: TextButton.styleFrom(
+                    primary: Colors.black,
+                    backgroundColor: Colors.lightBlue,
+                    side: BorderSide(color: Colors.grey, width: 2),
+                  ),
+                ),
+              )
+            ],
+          ),
+        )
+
+      ),
+    );
+  }
+}
