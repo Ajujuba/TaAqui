@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/models/Localizacao.dart';
@@ -24,6 +25,7 @@ class PostagensUsuario extends StatefulWidget {
 class PostagensUsuarioState extends State<PostagensUsuario> {
   final laranja = Colors.deepOrange;
   FirebaseFirestore db = FirebaseFirestore.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   void _novapostagem(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => CadastroPostagem()));
@@ -31,13 +33,14 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
 
   @override
   Widget build(BuildContext context) {
+    var usuarioLogado = auth.currentUser.email.toString();
     return Scaffold(
       appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
       ),
       body: StreamBuilder(
-        stream: db.collection('postagens').where("usuario", isEqualTo: "teste1@gmail.com").snapshots(),
+        stream: db.collection('postagens').where("usuario", isEqualTo: usuarioLogado).snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> dados) =>
         dados.connectionState == ConnectionState.none
         ? Center(child: CircularProgressIndicator(),)
