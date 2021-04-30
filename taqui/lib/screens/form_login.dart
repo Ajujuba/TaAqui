@@ -293,7 +293,7 @@ class LoginState extends State<Login>{
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => VisualizarPostagem())
+                MaterialPageRoute(builder: (context) => VisualizarPostagem("N9e1kGK3g6R4e3nw5qIA"))
             );
           },
           color: Colors.orange,

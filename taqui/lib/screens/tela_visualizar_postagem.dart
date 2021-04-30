@@ -12,6 +12,10 @@ const _tituloAppBar = 'Detalhes da Postagem';
 
 class VisualizarPostagem extends StatefulWidget {
 
+  String postagem;
+
+  VisualizarPostagem(this.postagem);
+
   @override
   State<StatefulWidget> createState() {
     return VisualizarPostagemState();
@@ -28,7 +32,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
   String _urlFotoPerfil;
   String userPostagem;
   String nomeUserPostagem;
-  String idPostagem = "7fsH5J5GNbt9xyTbc0Zh";
+  String idPostagem;
 
   _recuperarDadosPostagem() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -81,6 +85,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
   @override
   void initState() {
     super.initState();
+    idPostagem = widget.postagem;
     recuperarUrlFotoPerfil(userPostagem);
     _recuperarDadosPostagem();
     recuperarUrlFotoPerfil(userPostagem);

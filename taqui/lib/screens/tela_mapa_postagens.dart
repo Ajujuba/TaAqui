@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:taqui/screens/tela_visualizar_postagem.dart';
 
 class MapaPostagens extends StatefulWidget {
   @override
@@ -9,6 +11,8 @@ class MapaPostagens extends StatefulWidget {
 }
 
 class _MapaPostagensState extends State<MapaPostagens> {
+
+  Set<Marker> _marcadores ={};
 
   Completer<GoogleMapController> _controller = Completer();
   CameraPosition _posicaoCamera = CameraPosition(
@@ -43,7 +47,8 @@ class _MapaPostagensState extends State<MapaPostagens> {
       if(position != null){
         _posicaoCamera = CameraPosition(
             target: LatLng(position.latitude, position.longitude),
-            zoom: 19
+            zoom: 16.8,
+            tilt: 30
         );
         _movimentarCamera(_posicaoCamera);
       }
@@ -59,11 +64,62 @@ class _MapaPostagensState extends State<MapaPostagens> {
     );
   }
 
+  //.where("endereco.latitude", isEqualTo: -23.680072998476323).get();
+
+  _recuperaPostagem() async {
+    Position position = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+    var maxLat = (position.latitude + 0.003500);
+    var minLat = (position.latitude - 0.003500);
+    var minLon = (position.longitude - 0.003500);
+    var maxLon = (position.longitude + 0.003500);
+    var cont = 0;
+    Set<Marker> local = {};
+    print("startou");
+    FirebaseFirestore.instance
+      .collection('postagens')
+      .where("endereco.latitude", isGreaterThan: minLat)
+      .where("endereco.latitude", isLessThanOrEqualTo: maxLat)
+      .get()
+      .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          cont++;
+          var long = (doc["endereco.longitude"]);
+          var lat = (doc["endereco.latitude"]);
+          if (long >= minLon && long <= maxLon){
+            print(doc["descricao"]);
+            Marker marker = Marker(
+              markerId: MarkerId(cont.toString()),
+              position: LatLng(lat,long),
+              infoWindow: InfoWindow(
+                title: doc.id,
+                onTap: () {
+                  print("Infowindow clicada");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => VisualizarPostagem(doc.id))
+                  );
+                }
+              ),
+              onTap: (){
+                print("Marker clicado");
+              }
+            );
+            local.add(marker);
+          }
+        });
+        setState(() {
+          _marcadores = local;
+        });
+      });
+  }
+
+
   @override
   void initState() {
     super.initState();
     _recuperarUltimaLocalizacaoConhecida();
     _adicionarListenerLocalizacao();
+    _recuperaPostagem();
   }
 
   @override
@@ -72,16 +128,21 @@ class _MapaPostagensState extends State<MapaPostagens> {
       appBar: AppBar(
         title: Text("Mapa")
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.refresh),
+        onPressed: _recuperaPostagem,
+      ),
       body: Container(
         child: GoogleMap(
           //markers: _marcadores,
           mapType: MapType.normal,
           initialCameraPosition: _posicaoCamera,
           onMapCreated: _onMapCreated,
+          markers: _marcadores,
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
           //onLongPress: _adicionarMarcador,
-          //myLocationButtonEnabled: true,
         ),
       ),
     );
