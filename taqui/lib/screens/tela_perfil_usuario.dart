@@ -304,11 +304,12 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                           height: 10,
                         ),
                         Row(
-                          // email do user
+                          //definindo os dados do perfil
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              // email do user
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Align(
                                   // título
@@ -326,40 +327,58 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                                 fontSize: 18.0),
                                           ),
                                         ),
-                                        Align(
-                                          // conteúdo
-                                          alignment: Alignment.centerLeft,
-                                          child: SizedBox(
-                                            width: 150,
-                                            child: Row(
-                                              children: <Widget>[
-                                                Flexible(
-                                                  child: TextField(
-                                                    enabled: false,
-                                                    keyboardType:
-                                                    TextInputType.text,
-                                                    controller: getEmail(
-                                                        _controllerCampoEmail),
-                                                    decoration: InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Email",
-                                                      hintStyle: TextStyle(
-                                                          color: Colors.grey),
-                                                      contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          vertical: 8,
-                                                          horizontal: 8),
-                                                    ),
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
+                                        Container(
+                                          width: 250,
+                                          child: Align(
+                                            // conteúdo
+                                            alignment: Alignment.center,
+                                            child: SizedBox(
+
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Flexible(
+                                                    child: TextFormField(
+                                                      enabled: false,
+                                                      keyboardType:
+                                                      TextInputType.text,
+                                                      controller:
+                                                      getEmail(_controllerCampoEmail),
+                                                      decoration: InputDecoration(
+                                                        border: InputBorder.none,
+                                                        hintText: "Informe o Email",
+                                                        hintStyle: TextStyle(
+                                                            color: Colors.grey),
+                                                        contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8,
+                                                            horizontal: 8),
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 18.0,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                  // ícone que vai chamar a tela pra editar
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    child: IconButton(
+                                        icon: Icon(
+                                          Icons.email,
+                                          color: laranja,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                        }
                                     ),
                                   ),
                                 ),
