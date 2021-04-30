@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:taqui/models/Localizacao.dart';
+import 'package:taqui/models/ObjetoPerdido.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,16 +25,11 @@ class CadastroPostagem extends StatefulWidget{
 class CadastroPostagemState extends State<CadastroPostagem> {
   GlobalKey<FormState> _key = new GlobalKey(); // chave
   bool _validate = false;
+  final laranja = Colors.deepOrange;
+  final picker = ImagePicker();
 
   TextEditingController _controllerLocalizacao = TextEditingController();
   TextEditingController _controllerDescricao = TextEditingController();
-
-  String postagem = "";
-  String localizacao = "";
-  String desc = "";
-
-  final laranja = Colors.deepOrange;
-  final picker = ImagePicker();
 
   bool _network1 = false;
   bool _network2 = false;
@@ -86,18 +83,27 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     CollectionReference postagens = db.collection("postagens");
-        User usuarioLogado = auth.currentUser;
+    var usuarioLogado = auth.currentUser.email.toString();
+    var _dataPostagem = DateTime.now();
 
     Map<String,dynamic> dados = {
-      "dataPostagem": "teste",
+      "dataPostagem": _dataPostagem,
       "descricao" : _controllerDescricao.text,
-      "endereco": _controllerLocalizacao.text,
+      "endereco": {
+        "rua": "Rua do fulano",
+        "latitude": 16.16514651561,
+        "longitude": 23.16456251561,
+        "cep": "12345-678"
+      },
       "imagem1" : _imagem1,
+      "imagem2" : _imagem2,
+      "imagem3" : _imagem3,
       "status"  : "PERDIDO",
       "usuario" : usuarioLogado,
     };
 
     postagens.add(dados);
+
     Fluttertoast.showToast(
         msg: "Postagem cadastrada!",
         toastLength: Toast.LENGTH_SHORT,
