@@ -1,5 +1,7 @@
 //import 'dart:html';
 
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -10,7 +12,9 @@ import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 
+import '../CustomSearchDelegate.dart';
 
 const _tituloAppBar = 'Cadastro de Postagem';
 
@@ -30,7 +34,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
   TextEditingController _controllerLocalizacao = TextEditingController();
   TextEditingController _controllerDescricao = TextEditingController();
-
+  var endereco;
   bool _network1 = false;
   bool _network2 = false;
   bool _network3 = false;
@@ -89,19 +93,21 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     Map<String,dynamic> dados = {
       "dataPostagem": _dataPostagem,
       "descricao" : _controllerDescricao.text,
-      "endereco": {
-        "rua": "Rua do fulano",
-        "latitude": 16.16514651561,
-        "longitude": 23.16456251561,
-        "cep": "12345-678"
-      },
+      "endereco": endereco,
       "imagem1" : _imagem1,
       "imagem2" : _imagem2,
       "imagem3" : _imagem3,
       "status"  : "PERDIDO",
       "usuario" : usuarioLogado,
     };
-
+    /*
+    "endereco": {
+    "rua": "Rua do fulano",
+    "latitude": 16.16514651561,
+    "longitude": 23.16456251561,
+    "cep": "12345-678"
+    },
+    */
     postagens.add(dados);
 
     Fluttertoast.showToast(
@@ -161,7 +167,13 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                           Expanded(
                             child: TextField(
                               readOnly: false,
-                              onTap: () { },
+                              onTap: () async {
+                                String res = await showSearch(context: context, delegate: CustomSearchDelegate());
+                                if(res != null && res != ""){
+                                  endereco = jsonDecode(res) as Map<String, dynamic>;
+                                }
+
+                              },
                               keyboardType: TextInputType.text,
                               controller: _controllerLocalizacao,
                               decoration: InputDecoration(

@@ -98,7 +98,9 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
                                     Icons.edit,
                                     color: Colors.black,
                                   ),
-                                  onPressed: () async {
+                                  onPressed: ()  {
+
+
 
                                     ObjetoPerdido objeto = ObjetoPerdido();
                                     Localizacao endereco = Localizacao();
@@ -106,7 +108,7 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
                                     endereco.cep = data["endereco"]["cep"];
                                     endereco.latitude = data["endereco"]["latitude"];
                                     endereco.longitude = data["endereco"]["longitude"];
-                                    objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
+                                    objeto.id = dados.data.docs[index].id;
                                     objeto.endereco = endereco;
                                     objeto.descricao = data["descricao"];
                                     objeto.usuario = data["usuario"];
