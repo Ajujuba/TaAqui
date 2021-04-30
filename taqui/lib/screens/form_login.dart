@@ -273,26 +273,6 @@ class LoginState extends State<Login>{
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PostagensUsuario())
-            );
-          },
-          color: Colors.orange,
-          child: Text("Minhas postagens"),
-        ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CadastroPostagem())
-            );
-          },
-          color: Colors.orange,
-          child: Text("Nova postagem"),
-        ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
                 MaterialPageRoute(builder: (context) => VisualizarPostagem("N9e1kGK3g6R4e3nw5qIA"))
             );
           },

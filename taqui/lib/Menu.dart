@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taqui/screens/tela_listagem_chats.dart';
 import 'package:taqui/screens/tela_mapa_postagens.dart';
 import 'package:taqui/screens/tela_perfil_usuario.dart';
+import 'package:taqui/screens/tela_postagens.dart';
 
 class Menu extends StatefulWidget {
   @override
@@ -27,16 +28,7 @@ class _MenuState extends State<Menu> {
       ),*/
       MapaPostagens(),
       ListagemChats(),
-      Container(
-        child: Center(
-            child: Text(
-              "Minhas postagens",
-              style: TextStyle(
-                  fontSize: 25
-              ),
-            )
-        ),
-      )
+      PostagensUsuario()
     ];
     return Scaffold(
       body: telas[_indice],
