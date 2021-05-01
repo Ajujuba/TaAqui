@@ -99,7 +99,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
       ),
       body: Container(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(18),
+          padding: EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -123,22 +123,35 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                       ),
                     ),
                   ),
-                  Align( // nome do user
-                    alignment: Alignment.center,
-                    child: Text(nomeUserPostagem.toString() != null ? nomeUserPostagem.toString() : '',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold)
-                    ),
-                  ),
+                 Container(
+                   margin: EdgeInsets.only(left: 5),
+                   child:  Align( // nome do user
+                     alignment: Alignment.center,
+                     child: Text(nomeUserPostagem.toString() != null ? nomeUserPostagem.toString() : '',
+                         style: TextStyle(
+                             color: Colors.black,
+                             fontSize: 20.0,
+                             fontWeight: FontWeight.bold)
+                     ),
+                   ),
+                 ),
                 ],
               ),
               SizedBox(
                 height: 5,
               ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Localização:',
+                  style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0),
+                ),
+              ),
               Container(
-                margin: EdgeInsets.only(top: 10),
+                margin: EdgeInsets.only(top: 10, bottom: 10),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.grey.withOpacity(0.5),
@@ -167,6 +180,16 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Descrição:',
+                  style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0),
                 ),
               ),
               Container(
@@ -203,7 +226,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               Container(
                 child: Row(
@@ -279,7 +302,7 @@ class VisualizarPostagemState extends State<VisualizarPostagem> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 10,
               ),
               Container(
                 height: 40,

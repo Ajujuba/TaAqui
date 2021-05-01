@@ -385,12 +385,23 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                 return Expanded(
                     child: Container(
                         child: SingleChildScrollView(
-                          padding: EdgeInsets.all(18),
+                          padding: EdgeInsets.all(15),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Localização:',
+                                  style: TextStyle(
+                                      color: Colors.deepOrange,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0),
+                                ),
+                              ),
                               Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 10),
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: Colors.grey.withOpacity(0.5),
@@ -439,6 +450,16 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                         )
                                     ),
                                   ],
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Descrição:',
+                                  style: TextStyle(
+                                      color: Colors.deepOrange,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0),
                                 ),
                               ),
                               Container(
