@@ -202,6 +202,17 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
         // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.exit_to_app_outlined,
+              color: Colors.white,
+            ),
+            onPressed: () {
+
+            },
+          )
+        ],
       ),
       body: Builder(
           builder: (context) => SingleChildScrollView(
