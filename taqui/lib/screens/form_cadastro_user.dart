@@ -84,6 +84,7 @@ class CadastroUserState extends State<CadastroUser> {
     if (value.length == 0) {
       return "Informe a data de nascimento";
     }
+    
   }
 
   String _validarEmail(String value) {
@@ -99,19 +100,19 @@ class CadastroUserState extends State<CadastroUser> {
   }
 
   String _validarCelular(String value) {
-    if (value.length == 0) {
+    if (value.length == 0 || value.length < 15) {
       return "Informe o número de celular";
     }
   }
 
   String _validarTelefone(String value) {
-    if (value.length == 0) {
+    if (value.length == 0 || value.length < 14) {
       return "Informe o número de telefone";
     }
   }
 
   String _validarCpf(String value) {
-    if (value.length == 0) {
+    if (value.length == 0 || value.length < 14) {
       return "Informe o número do CPF";
     }
   }
