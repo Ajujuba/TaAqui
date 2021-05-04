@@ -46,7 +46,6 @@ class _ListagemChatsState extends State<ListagemChats> {
 
     setState(() {
       _idUsuarioLogado = usuarioLogado.email;
-      print(_idUsuarioLogado);
     });
 
     _adicionarListenerConversas();
@@ -94,7 +93,7 @@ class _ListagemChatsState extends State<ListagemChats> {
     for(DocumentSnapshot mensagem in _mensagensRemovidasUsuario.docs){
 
       setState(() {
-        m.idUsuario = _idUsuarioLogado;
+        m.idUsuario = mensagem["idUsuario"];
         m.urlImagem = mensagem["urlImagem"];
         m.data = mensagem["data"];
         m.mensagem = mensagem["mensagem"];

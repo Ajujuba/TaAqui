@@ -129,12 +129,18 @@ class _MensagensState extends State<Mensagens> {
 
     var user = snapshot.data();
 
+    DocumentSnapshot snapshot2 = await db.collection("usuarios")
+        .doc(widget.contato.idUsuario).get();
+
+    var user2 = snapshot2.data();
+
     setState(() {
       _idUsuarioLogado = usuarioLogado.email;
       _idUsuarioDestinatario = widget.contato.idUsuario;
       _usuarioLogado.nome = user["nome"];
       _usuarioLogado.urlImagem = user["foto_perfil"];
       _usuarioLogado.email = usuarioLogado.email;
+      widget.contato.urlImagem = user2["foto_perfil"];
     });
     _adicionarListenerMensagens();
   }
