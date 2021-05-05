@@ -47,7 +47,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
   //função para acessar as mídias da galeria
   Future _pegarImgGaleria(int numeroImagem) async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         switch(numeroImagem){
