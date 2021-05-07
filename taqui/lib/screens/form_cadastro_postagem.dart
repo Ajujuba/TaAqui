@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
+import 'package:taqui/screens/tela_mapa_postagens.dart';
 import 'package:taqui/screens/tela_objeto_detalhe.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,8 +20,6 @@ const _tituloAppBar = 'Cadastro de Postagem';
 
 class CadastroPostagem extends StatefulWidget {
 
-  ObjetoPerdido objetoPerdido;
-
   @override
   State<StatefulWidget> createState() {
     return CadastroPostagemState();
@@ -31,8 +30,10 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
   String _id;
 
+
   bool _subindoImagem = false;
   FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
   GlobalKey<FormState> _key = new GlobalKey(); // chave
   Localizacao _endereco = Localizacao();
   bool _validate = false;
@@ -123,9 +124,11 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                     if(tipo == "excluir"){
                       _retorna();
                       Navigator.pop(context);
-                    } else {
-                      // _carregaDados();
-                      //_preencheImagens();
+                    } else if(tipo == "registro"){
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => MapaPostagens( )));
+
+                    }else{
                       Navigator.pop(context);
                     }
                   },
@@ -155,45 +158,6 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     }
   }
 
-  criarPostagem() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    FirebaseAuth auth = FirebaseAuth.instance;
-
-    CollectionReference postagens = db.collection("postagens");
-    var usuarioLogado = auth.currentUser.email.toString();
-    var _dataPostagem = DateTime.now();
-
-    Map<String, dynamic> dados = {
-      "dataPostagem": _dataPostagem,
-      "descricao": _controllerDescricao.text,
-      "endereco": endereco,
-      "imagem1": _imagem1,
-      "imagem2": _imagem2,
-      "imagem3": _imagem3,
-      "status": "PERDIDO",
-      "usuario": usuarioLogado,
-    };
-    /*
-    "endereco": {
-    "rua": "Rua do fulano",
-    "latitude": 16.16514651561,
-    "longitude": 23.16456251561,
-    "cep": "12345-678"
-    },
-    */
-    postagens.add(dados);
-
-    Fluttertoast.showToast(
-        msg: "Postagem cadastrada!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.SNACKBAR,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.lightGreen,
-        textColor: Colors.white,
-        fontSize: 16.0);
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,32 +180,34 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     );
   }
 
-  void _saveInfos() async{
+  void _validaForm(){
+    if (_controllerDescricao != "" && _controllerLocalizacao != ""){
+      _saveInfos();
+    }else{
+      _exibirMensagem(
+          "Aviso", "Preencha todos os campos de texto para cadastrar a postagem!",
+          "atualizar");
+    }
+  }
 
-    //Checar campos nulos antes de seguir com a função
+  void _saveInfos() async{
 
     String imagem1 = null;
     String imagem2 = null;
     String imagem3 = null;
 
-    // if(this._imagem1 != null && this._network1 == false){
-    //   await this._enviarFoto(this._imagem1, 1);
-    // }
-    // if(this._imagem2 != null && this._network2 == false){
-    //   await this._enviarFoto(this._imagem2, 2);
-    // }
-    // if(this._imagem3 != null && this._network3 == false){
-    //   await this._enviarFoto(this._imagem3, 3);
-    // }
-    // if(this._imagem1 == null && this._network1 == false){
-    //   imagem1 = "imagem1";
-    // }
-    // if(this._imagem2 == null && this._network2 == false){
-    //   imagem2 = "imagem2";
-    // }
-    // if(this._imagem3 == null && this._network3 == false){
-    //   imagem3 = "imagem3";
-    // }
+    if(this._imagem1 == null && this._network1 == false){
+      imagem1 = "imagem1";
+    }
+    if(this._imagem2 == null && this._network2 == false){
+      imagem2 = "imagem2";
+    }
+    if(this._imagem3 == null && this._network3 == false){
+      imagem3 = "imagem3";
+    }
+
+    var usuarioLogado = auth.currentUser.email.toString();
+    var _dataPostagem = DateTime.now();
 
     if(imagem1 == null && imagem2 == null && imagem3 == null){
       _db.collection("postagens").doc()
@@ -252,10 +218,13 @@ class CadastroPostagemState extends State<CadastroPostagem> {
           "rua": _endereco.rua,
           "cep": _endereco.cep
         },
-        "descricao": _controllerDescricao.text
+        "descricao": _controllerDescricao.text,
+        "usuario": usuarioLogado,
+        "dataPostagem": _dataPostagem,
+        "campoTeste": "teste"
 
-      }).then((value) => _exibirMensagem("Sucesso",
-          "Os dados desse objeto foram atualizados com êxito!", "atualizar"));
+      }).then((value) => _exibirMensagem("registro",
+          "Os dados desse objeto foram cafastrados com êxito!", "atualizar"));
     } else {
       Map<String, dynamic> dados = Map();
       Map<String, dynamic> endereco = Map();
@@ -267,6 +236,8 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
       dados["endereco"] = endereco;
       dados["descricao"] = _controllerDescricao.text;
+      dados["usuario"] = usuarioLogado;
+      dados["dataPostagem"] = _dataPostagem;
 
       if(imagem1 != null && imagem2 != null && imagem3 != null){
         dados["imagem1"] = "";
@@ -289,13 +260,28 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         dados["imagem3"] = "";
       }
       print(dados.toString());
-      _db.collection("postagens").doc()
-          .set(dados).then((value) =>
-          _exibirMensagem(
-              "Sucesso", "Os dados desse objeto foram atualizados com êxito!",
-              "atualizar"));
+
+      DocumentReference docRef = await _db.collection("postagens").add(dados);
+
+        _id = docRef.id;
+        if(this._imagem1 != null && this._network1 == false){
+          await this._enviarFoto(this._imagem1, 1);
+        }
+        if(this._imagem2 != null && this._network2 == false){
+          await this._enviarFoto(this._imagem2, 2);
+        }
+        if(this._imagem3 != null && this._network3 == false){
+          await this._enviarFoto(this._imagem3, 3);
+        }
+
+        _exibirMensagem(
+            "registro", "Os dados desse objeto foram cadastrados com êxito!",
+            "atualizar");
+
     }
   }
+
+
 
   _enviarFoto(File imagemSelecionada, int numeroImagem) async {
     _subindoImagem = true;
@@ -305,7 +291,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     Reference pastaRaiz = storage.ref();
     Reference arquivo = pastaRaiz.child("postagens")
     //->
-        .child("${widget.objetoPerdido.id}")
+        .child(_id)
         .child(nomeImagem + ".jpg");
     UploadTask task = arquivo.putFile(imagemSelecionada);
 
@@ -337,7 +323,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         campo = "imagem3";
     }
     _db.collection("postagens").doc(_id)
-        .set({
+        .update({
       campo: url,
     });
     //this._preencheImagens();
@@ -648,7 +634,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                         textAlign: TextAlign.center,
                       ),
                       onPressed: () {
-                        _saveInfos();
+                        _validaForm();
                       }),
                 ),
               ),
