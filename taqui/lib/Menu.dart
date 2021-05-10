@@ -48,17 +48,17 @@ class _MenuState extends State<Menu> {
               icon: Icon(Icons.account_circle)
           ),
           BottomNavigationBarItem(
-              backgroundColor: Colors.orange,
+              backgroundColor: Color.fromRGBO(246, 120, 46, 1),
               title: Text("Postagens"),
               icon: Icon(Icons.search)
           ),
           BottomNavigationBarItem(
-              backgroundColor: Color(0xFFF92B7F),
+              backgroundColor: Color.fromRGBO(247, 89, 80, 1),
               title: Text("Chats"),
               icon: Icon(Icons.chat)
           ),
           BottomNavigationBarItem(
-              backgroundColor: Colors.amber,
+              backgroundColor: Color.fromRGBO(249, 46, 123, 1),
               title: Text("Minhas postagens"),
               icon: Icon(Icons.folder)
           ),

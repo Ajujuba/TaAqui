@@ -38,6 +38,7 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
       appBar: AppBar( // define um titulo pra tela
         title: Text(_tituloAppBar),
         elevation: 0,
+        backgroundColor: Color.fromRGBO(249, 46, 123, 1),
       ),
       body: StreamBuilder(
         stream: db.collection('postagens').where("usuario", isEqualTo: usuarioLogado).snapshots(),
