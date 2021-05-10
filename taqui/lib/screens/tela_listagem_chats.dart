@@ -140,6 +140,7 @@ class _ListagemChatsState extends State<ListagemChats> {
             Icon(Icons.chat_outlined, color: Colors.white)
           ],
         ),
+        backgroundColor: Color.fromRGBO(247, 89, 80, 1),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _controller.stream,

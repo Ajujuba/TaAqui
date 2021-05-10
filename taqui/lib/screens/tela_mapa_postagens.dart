@@ -17,7 +17,7 @@ class _MapaPostagensState extends State<MapaPostagens> {
   Completer<GoogleMapController> _controller = Completer();
   CameraPosition _posicaoCamera = CameraPosition(
       target: LatLng(-23.5639999, -46.653256),
-      zoom: 16
+      zoom: 19
   );
 
   _onMapCreated(GoogleMapController controller){
@@ -47,7 +47,7 @@ class _MapaPostagensState extends State<MapaPostagens> {
       if(position != null){
         _posicaoCamera = CameraPosition(
             target: LatLng(position.latitude, position.longitude),
-            zoom: 16.8,
+            zoom: 18.5,
             tilt: 30
         );
         _movimentarCamera(_posicaoCamera);
@@ -126,7 +126,8 @@ class _MapaPostagensState extends State<MapaPostagens> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Mapa")
+        title: Text("Mapa"),
+        backgroundColor: Color.fromRGBO(246, 120, 46, 1),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: FloatingActionButton(
