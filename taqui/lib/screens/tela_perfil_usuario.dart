@@ -429,7 +429,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                             // conteúdo
                                             alignment: Alignment.centerLeft,
                                             child: SizedBox(
-                                              width: 180,
+                                              width: 250,
                                               child: Row(
                                                 children: <Widget>[
                                                   Flexible(
@@ -439,7 +439,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                                       controller:
                                                       _controllerCampoNome,
                                                       decoration: InputDecoration(
-                                                        border: InputBorder.none,
+                                                        //border: InputBorder.none,
                                                         hintText: "Informe o Nome",
                                                         hintStyle: TextStyle(
                                                             color: Colors.grey),
@@ -510,7 +510,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                           // conteúdo
                                           alignment: Alignment.centerLeft,
                                           child: SizedBox(
-                                            width: 180,
+                                            width: 250,
                                             child: Row(
                                               children: <Widget>[
                                                 Flexible(
@@ -520,7 +520,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                                     controller:
                                                     _controllerCampoNumCel,
                                                     decoration: InputDecoration(
-                                                      border: InputBorder.none,
+                                                      //border: InputBorder.none,
                                                       hintText: "Informe o Nº Celular",
                                                       hintStyle: TextStyle(
                                                           color: Colors.grey),
@@ -565,6 +565,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                       ],
                   ),
                 ),
+
               )),
     );
   }
