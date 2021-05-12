@@ -7,6 +7,8 @@ import 'package:path/path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'form_login.dart';
+
 const _tituloAppBar = 'Perfil do usuário';
 
 class PerfilUsuario extends StatefulWidget {
@@ -208,8 +210,12 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
               Icons.exit_to_app_outlined,
               color: Colors.white,
             ),
-            onPressed: () {
-
+            onPressed: () async{
+              await FirebaseAuth.instance.signOut();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login())
+              );
             },
           )
         ],

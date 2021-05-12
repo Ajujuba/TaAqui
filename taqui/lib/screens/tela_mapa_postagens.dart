@@ -62,7 +62,10 @@ class _MapaPostagensState extends State<MapaPostagens> {
           cameraPosition
       )
     );
+    //->
+    _recuperaPostagem();
   }
+
 
   //.where("endereco.latitude", isEqualTo: -23.680072998476323).get();
 
@@ -83,15 +86,21 @@ class _MapaPostagensState extends State<MapaPostagens> {
       .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
           cont++;
+
+          String title = (doc["descricao"]);
+          title = ("$title                    ");
+          title = title.substring(0,15);
+
           var long = (doc["endereco.longitude"]);
           var lat = (doc["endereco.latitude"]);
+
           if (long >= minLon && long <= maxLon){
             print(doc["descricao"]);
             Marker marker = Marker(
               markerId: MarkerId(cont.toString()),
               position: LatLng(lat,long),
               infoWindow: InfoWindow(
-                title: doc.id,
+                title: title,
                 onTap: () {
                   print("Infowindow clicada");
                   Navigator.push(

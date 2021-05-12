@@ -82,13 +82,10 @@ class LoginState extends State<Login>{
         (await FirebaseAuth.instance.signInWithEmailAndPassword(
                 email: _controllerCampoEmail.text,
                 password: _controllerCampoSenha.text));
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) {
-          return Menu();
-        }));
+
         if (userCred != null){
           print("Foi");
-          Navigator.push(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) {
             return Menu();
           }));
@@ -109,7 +106,6 @@ class LoginState extends State<Login>{
       });
     }
   }
-
 
 
   @override
