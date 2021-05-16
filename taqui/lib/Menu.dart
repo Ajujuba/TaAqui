@@ -15,7 +15,6 @@ class _MenuState extends State<Menu> {
   Widget build(BuildContext context) {
 
     List<Widget> telas = [
-      PerfilUsuario(),
       /*Container(
         child: Center(
           child: Text(
@@ -28,7 +27,8 @@ class _MenuState extends State<Menu> {
       ),*/
       MapaPostagens(),
       ListagemChats(),
-      PostagensUsuario()
+      PostagensUsuario(),
+      PerfilUsuario(),
     ];
     return Scaffold(
       body: telas[_indice],
@@ -43,11 +43,6 @@ class _MenuState extends State<Menu> {
         fixedColor: Colors.white,
         items: [
           BottomNavigationBarItem(
-              backgroundColor: Colors.deepOrange,
-              title: Text("Perfil"),
-              icon: Icon(Icons.account_circle)
-          ),
-          BottomNavigationBarItem(
               backgroundColor: Color.fromRGBO(246, 120, 46, 1),
               title: Text("Postagens"),
               icon: Icon(Icons.search)
@@ -61,6 +56,11 @@ class _MenuState extends State<Menu> {
               backgroundColor: Color.fromRGBO(249, 46, 123, 1),
               title: Text("Minhas postagens"),
               icon: Icon(Icons.folder)
+          ),
+          BottomNavigationBarItem(
+              backgroundColor: Colors.deepOrange,
+              title: Text("Perfil"),
+              icon: Icon(Icons.account_circle)
           ),
         ],
       ),
