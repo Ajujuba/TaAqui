@@ -124,8 +124,8 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                     if(tipo == "excluir"){
                       _retorna();
                       Navigator.pop(context);
-                    } else if(tipo == "registro"){
-                      Navigator.push(context,
+                    } else if(tipo == "atualizar"){
+                      Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => MapaPostagens( )));
 
                     }else{
@@ -223,7 +223,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         "dataPostagem": _dataPostagem,
         "campoTeste": "teste"
 
-      }).then((value) => _exibirMensagem("registro",
+      }).then((value) => _exibirMensagem("Aviso",
           "Postagem cadastrada com sucesso!", "atualizar"));
     } else {
       Map<String, dynamic> dados = Map();
@@ -275,7 +275,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         }
 
         _exibirMensagem(
-            "registro", "Postagem cadastrada com sucesso!",
+            "Aviso", "Postagem cadastrada com sucesso!",
             "atualizar");
 
     }
