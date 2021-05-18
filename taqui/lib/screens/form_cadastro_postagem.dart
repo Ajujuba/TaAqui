@@ -224,7 +224,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         "campoTeste": "teste"
 
       }).then((value) => _exibirMensagem("registro",
-          "Os dados desse objeto foram cafastrados com êxito!", "atualizar"));
+          "Postagem cadastrada com sucesso!", "atualizar"));
     } else {
       Map<String, dynamic> dados = Map();
       Map<String, dynamic> endereco = Map();
@@ -275,7 +275,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
         }
 
         _exibirMensagem(
-            "registro", "Os dados desse objeto foram cadastrados com êxito!",
+            "registro", "Postagem cadastrada com sucesso!",
             "atualizar");
 
     }
