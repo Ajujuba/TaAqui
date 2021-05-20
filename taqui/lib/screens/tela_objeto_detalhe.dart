@@ -13,6 +13,8 @@ import 'dart:io';
 
 import 'package:taqui/screens/tela_perfil_usuario.dart';
 
+import 'tela_postagens.dart';
+
 class ObjetoDetalhe extends StatefulWidget {
 
   ObjetoPerdido objetoPerdido;
@@ -160,27 +162,16 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
       dados["endereco"] = endereco;
       dados["descricao"] = _controllerDescricao.text;
 
-      if(imagem1 != null && imagem2 != null && imagem3 != null){
+      if(imagem1 != null){
         dados["imagem1"] = "";
+      }
+      if(imagem2 != null){
         dados["imagem2"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 != null && imagem2 != null && imagem3 == null){
-        dados["imagem1"] = "";
-        dados["imagem2"] = "";
-      } else if(imagem1 != null && imagem2 == null && imagem3 != null){
-        dados["imagem1"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 == null && imagem2 != null && imagem3 != null){
-        dados["imagem2"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 != null && imagem2 == null && imagem3 == null){
-        dados["imagem1"] = "";
-      } else if(imagem1 == null && imagem2 != null && imagem3 == null){
-        dados["imagem2"] = "";;
-      } else if(imagem1 == null && imagem2 == null && imagem3 != null){
+      }
+      if(imagem3 != null){
         dados["imagem3"] = "";
       }
-      print(dados.toString());
+
       _db.collection("postagens").doc(widget.objetoPerdido.id)
           .update(dados).then((value) =>
           _exibirMensagem(
@@ -190,12 +181,12 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
   }
 
   void _excluirObjeto() async {
-    _db.collection("postagens").doc(widget.objetoPerdido.id)
-        .delete()
-        .then((value) {
-      _exibirMensagem("Objeto excluído", "Posha, esperamos que não tenha desistido da sua busca. Seja forte!", "excluir");
-    }
-    );
+    _exibirMensagem("Objeto excluído", "Posha, esperamos que não tenha desistido da sua busca. Seja forte!", "excluir");
+    _controller.close().then((value) {
+      _db.collection("postagens").doc(widget.objetoPerdido.id)
+          .delete();
+    });
+
   }
 
   void _finalizarBusca() async {
@@ -235,8 +226,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
               TextButton(
                   onPressed: (){
                     if(tipo == "excluir"){
-                      _retorna();
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => PostagensUsuario( )));
                     } else {
                       // _carregaDados();
                       _preencheImagens();
@@ -251,14 +242,8 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
     );
   }
 
-  _retorna(){
-    Timer(Duration(milliseconds: 500), (){
-      Navigator.pop(context);
-    });
-  }
-
   Stream<DocumentSnapshot> _adicionarListenerPostagem(){
-
+    print("LISTENER");
     final stream = _db
         .collection("postagens")
         .doc("${widget.objetoPerdido.id}")
@@ -271,24 +256,6 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
 
   _carregaDadosPostagem(DocumentSnapshot dados){
     widget.objetoPerdido.status = dados["status"];
-   /* widget.objetoPerdido.endereco.rua = dados["endereco"]["rua"];
-    widget.objetoPerdido.endereco.cep = dados["endereco"]["cep"];
-    widget.objetoPerdido.endereco.latitude = dados["endereco"]["latitude"];
-    widget.objetoPerdido.endereco.longitude = dados["endereco"]["longitude"];
-    widget.objetoPerdido.descricao = dados["descricao"];
-    widget.objetoPerdido.usuario = dados["usuario"];
-    widget.objetoPerdido.imagem1 = dados["imagem1"];
-    widget.objetoPerdido.imagem2 = dados["imagem2"];
-    widget.objetoPerdido.imagem3 = dados["imagem3"];
-
-      this._controllerLocalizacao.text = widget.objetoPerdido.endereco.rua;
-      this._controllerDescricao.text = widget.objetoPerdido.descricao;
-
-      _endereco.rua = widget.objetoPerdido.endereco.rua;
-      _endereco.latitude = widget.objetoPerdido.endereco.latitude;
-      _endereco.longitude = widget.objetoPerdido.endereco.longitude;
-      _endereco.cep = widget.objetoPerdido.endereco.cep;
-*/
   }
 
   _enviarFoto(File imagemSelecionada, int numeroImagem) async {
@@ -359,6 +326,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
 
   @override
   Widget build(BuildContext context) {
+    print("BUILD");
     var stream = StreamBuilder(
         stream: _controller.stream,
         builder: (context, snapshot) {

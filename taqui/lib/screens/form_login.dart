@@ -238,7 +238,7 @@ class LoginState extends State<Login>{
             FirebaseFirestore db = FirebaseFirestore.instance;
 
             QuerySnapshot doc = await db.collection("postagens")
-            .where("endereco.latitude", isEqualTo: -23.680298999999998).get();
+            .where("endereco.latitude", isEqualTo: -23.6809294).get();
 
             DocumentSnapshot dados = doc.docs[0];
 
@@ -248,7 +248,7 @@ class LoginState extends State<Login>{
             endereco.cep = dados["endereco"]["cep"];
             endereco.latitude = dados["endereco"]["latitude"];
             endereco.longitude = dados["endereco"]["longitude"];
-            objeto.id = "7fsH5J5GNbt9xyTbc0Zh";
+            objeto.id = "caz9fLilIPpWbN8dOtGE";
             objeto.endereco = endereco;
             objeto.descricao = dados["descricao"];
             objeto.usuario = dados["usuario"];
@@ -269,7 +269,7 @@ class LoginState extends State<Login>{
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => VisualizarPostagem("SUGoo3OHcqBbZ5sBNT2m"))
+                MaterialPageRoute(builder: (context) => VisualizarPostagem("caz9fLilIPpWbN8dOtGE"))
             );
           },
           color: Colors.orange,
