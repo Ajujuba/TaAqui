@@ -15,11 +15,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../CustomSearchDelegate.dart';
+import '../Menu.dart';
 
 const _tituloAppBar = 'Cadastro de Postagem';
 
 class CadastroPostagem extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return CadastroPostagemState();
@@ -27,9 +27,8 @@ class CadastroPostagem extends StatefulWidget {
 }
 
 class CadastroPostagemState extends State<CadastroPostagem> {
-
   String _id;
-
+  bool _bool = false;
 
   bool _subindoImagem = false;
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -92,17 +91,14 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     });
   }
 
-
-  _exibirMensagem(String title, String mensagem, String tipo){
+  _exibirMensagem(String title, String mensagem, String tipo) {
     showDialog(
         context: context,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
             title: Text(
               "${title}",
-              style: TextStyle(
-                  color: Colors.deepOrange
-              ),
+              style: TextStyle(color: Colors.deepOrange),
             ),
             content: SingleChildScrollView(
               child: Column(
@@ -110,45 +106,43 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                 children: [
                   Text(
                     "${mensagem}",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   )
                 ],
               ),
             ),
             actions: [
               TextButton(
-                  onPressed: (){
-                    if(tipo == "excluir"){
+                  onPressed: () {
+                    if (tipo == "excluir") {
                       _retorna();
                       Navigator.pop(context);
-                    } else if(tipo == "atualizar"){
+                    } else if (tipo == "atualizar") {
+                      Navigator.pop(context);
                       Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => MapaPostagens( )));
-
-                    }else{
+                          MaterialPageRoute(builder: (context) {
+                        return Menu();
+                      }));
+                    } else {
                       Navigator.pop(context);
                     }
                   },
-                  child: Text("Ok")
-              ),
+                  child: Text("Ok")),
             ],
           );
-        }
-    );
+        });
   }
 
-  _retorna(){
-    Timer(Duration(milliseconds: 500), (){
+  _retorna() {
+    Timer(Duration(milliseconds: 500), () {
       Navigator.pop(context);
     });
   }
 
   void _defineLocalizacao() async {
-    String res = await showSearch(context: context, delegate: CustomSearchDelegate());
-    if(res != null && res != ""){
+    String res =
+        await showSearch(context: context, delegate: CustomSearchDelegate());
+    if (res != null && res != "") {
       final endereco = jsonDecode(res) as Map<String, dynamic>;
       _endereco.rua = endereco["rua"];
       _endereco.cep = endereco["cep"];
@@ -180,107 +174,93 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     );
   }
 
-  void _validaForm(){
-    if (_controllerDescricao != "" && _controllerLocalizacao != ""){
+   _validaForm(){
+    if (_controllerDescricao != "" && _controllerLocalizacao != "") {
       _saveInfos();
-    }else{
+    } else {
       _exibirMensagem(
-          "Aviso", "Preencha todos os campos de texto para cadastrar a postagem!",
-          "atualizar");
+          "Aviso",
+          "Preencha todos os campos de texto para cadastrar a postagem!",
+          "erro");
+      _bool = false;
     }
   }
 
-  void _saveInfos() async{
+  _saveInfos() async {
 
     String imagem1 = null;
     String imagem2 = null;
     String imagem3 = null;
 
-    if(this._imagem1 == null && this._network1 == false){
+    if (this._imagem1 == null && this._network1 == false) {
       imagem1 = "imagem1";
     }
-    if(this._imagem2 == null && this._network2 == false){
+    if (this._imagem2 == null && this._network2 == false) {
       imagem2 = "imagem2";
     }
-    if(this._imagem3 == null && this._network3 == false){
+    if (this._imagem3 == null && this._network3 == false) {
       imagem3 = "imagem3";
     }
 
     var usuarioLogado = auth.currentUser.email.toString();
     var _dataPostagem = DateTime.now();
 
-    if(imagem1 == null && imagem2 == null && imagem3 == null){
-      _db.collection("postagens").doc()
-          .set({
-        "endereco": {
-          "latitude": _endereco.latitude,
-          "longitude": _endereco.longitude,
-          "rua": _endereco.rua,
-          "cep": _endereco.cep
-        },
-        "descricao": _controllerDescricao.text,
-        "usuario": usuarioLogado,
-        "dataPostagem": _dataPostagem,
-        "campoTeste": "teste"
+    Map<String, dynamic> dados = Map();
+    Map<String, dynamic> endereco = Map();
 
-      }).then((value) => _exibirMensagem("Aviso",
-          "Postagem cadastrada com sucesso!", "atualizar"));
-    } else {
-      Map<String, dynamic> dados = Map();
-      Map<String, dynamic> endereco = Map();
+    endereco["latitude"] = _endereco.latitude;
+    endereco["longitude"] = _endereco.longitude;
+    endereco["rua"] = _endereco.rua;
+    endereco["cep"] = _endereco.cep;
 
-      endereco["latitude"] = _endereco.latitude;
-      endereco["longitude"] = _endereco.longitude;
-      endereco["rua"] = _endereco.rua;
-      endereco["cep"] = _endereco.cep;
+    dados["endereco"] = endereco;
+    dados["descricao"] = _controllerDescricao.text;
+    dados["usuario"] = usuarioLogado;
+    dados["dataPostagem"] = _dataPostagem;
+    dados["status"] = "PERDIDO";
 
-      dados["endereco"] = endereco;
-      dados["descricao"] = _controllerDescricao.text;
-      dados["usuario"] = usuarioLogado;
-      dados["dataPostagem"] = _dataPostagem;
-
-      if(imagem1 != null && imagem2 != null && imagem3 != null){
-        dados["imagem1"] = "";
-        dados["imagem2"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 != null && imagem2 != null && imagem3 == null){
-        dados["imagem1"] = "";
-        dados["imagem2"] = "";
-      } else if(imagem1 != null && imagem2 == null && imagem3 != null){
-        dados["imagem1"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 == null && imagem2 != null && imagem3 != null){
-        dados["imagem2"] = "";
-        dados["imagem3"] = "";
-      } else if(imagem1 != null && imagem2 == null && imagem3 == null){
-        dados["imagem1"] = "";
-      } else if(imagem1 == null && imagem2 != null && imagem3 == null){
-        dados["imagem2"] = "";
-      } else if(imagem1 == null && imagem2 == null && imagem3 != null){
-        dados["imagem3"] = "";
-      }
-      print(dados.toString());
-
-      DocumentReference docRef = await _db.collection("postagens").add(dados);
-
-        _id = docRef.id;
-        if(this._imagem1 != null && this._network1 == false){
-          await this._enviarFoto(this._imagem1, 1);
-        }
-        if(this._imagem2 != null && this._network2 == false){
-          await this._enviarFoto(this._imagem2, 2);
-        }
-        if(this._imagem3 != null && this._network3 == false){
-          await this._enviarFoto(this._imagem3, 3);
-        }
-
-        _exibirMensagem(
-            "Aviso", "Postagem cadastrada com sucesso!",
-            "atualizar");
-
+    if (imagem1 != null && imagem2 != null && imagem3 != null) {
+      dados["imagem1"] = "";
+      dados["imagem2"] = "";
+      dados["imagem3"] = "";
+    } else if (imagem1 != null && imagem2 != null && imagem3 == null) {
+      dados["imagem1"] = "";
+      dados["imagem2"] = "";
+    } else if (imagem1 != null && imagem2 == null && imagem3 != null) {
+      dados["imagem1"] = "";
+      dados["imagem3"] = "";
+    } else if (imagem1 == null && imagem2 != null && imagem3 != null) {
+      dados["imagem2"] = "";
+      dados["imagem3"] = "";
+    } else if (imagem1 != null && imagem2 == null && imagem3 == null) {
+      dados["imagem1"] = "";
+    } else if (imagem1 == null && imagem2 != null && imagem3 == null) {
+      dados["imagem2"] = "";
+    } else if (imagem1 == null && imagem2 == null && imagem3 != null) {
+      dados["imagem3"] = "";
     }
-  }
+    print(dados.toString());
 
+    DocumentReference docRef = await _db.collection("postagens").add(dados);
+
+    _id = docRef.id;
+    if (this._imagem1 == null &&
+        this._imagem2 == null &&
+        this._imagem3 == null) {
+      _exibirMensagem("Aviso", "Postagem cadastrada com sucesso!", "atualizar");
+    } else {
+      if (this._imagem1 != null && this._network1 == false) {
+        await this._enviarFoto(this._imagem1, 1);
+      }
+      if (this._imagem2 != null && this._network2 == false) {
+        await this._enviarFoto(this._imagem2, 2);
+      }
+      if (this._imagem3 != null && this._network3 == false) {
+        await this._enviarFoto(this._imagem3, 3);
+      }
+    }
+
+  }
 
 
   _enviarFoto(File imagemSelecionada, int numeroImagem) async {
@@ -289,30 +269,32 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
     FirebaseStorage storage = FirebaseStorage.instance;
     Reference pastaRaiz = storage.ref();
-    Reference arquivo = pastaRaiz.child("postagens")
-    //->
+    Reference arquivo = pastaRaiz
+        .child("postagens")
+        //->
         .child(_id)
         .child(nomeImagem + ".jpg");
     UploadTask task = arquivo.putFile(imagemSelecionada);
 
     task.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
-      if(taskSnapshot.state == TaskState.running){
+      if (taskSnapshot.state == TaskState.running) {
         setState(() {
           _subindoImagem = true;
         });
-      } else if(taskSnapshot.state == TaskState.success){
+      } else if (taskSnapshot.state == TaskState.success) {
         setState(() {
           _subindoImagem = false;
-          _recuperarUrlImagem(taskSnapshot, numeroImagem);
+          _insereImagem(taskSnapshot, numeroImagem);
         });
       }
     });
   }
 
-  Future _recuperarUrlImagem(TaskSnapshot taskSnapshot, int numeroImagem) async {
+  Future _insereImagem(
+      TaskSnapshot taskSnapshot, int numeroImagem) async {
     String url = await taskSnapshot.ref.getDownloadURL();
     String campo;
-    switch(numeroImagem){
+    switch (numeroImagem) {
       case 1:
         campo = "imagem1";
         break;
@@ -322,11 +304,12 @@ class CadastroPostagemState extends State<CadastroPostagem> {
       default:
         campo = "imagem3";
     }
-    _db.collection("postagens").doc(_id)
-        .update({
+
+    _db.collection("postagens").doc(_id).update({
       campo: url,
     });
-    //this._preencheImagens();
+
+    _exibirMensagem("Aviso", "Postagem cadastrada com sucesso!", "atualizar");
   }
 
   Widget _formPostagem() {
