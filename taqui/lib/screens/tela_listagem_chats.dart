@@ -250,7 +250,8 @@ class _ListagemChatsState extends State<ListagemChats> {
                               nome,
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16
+                                  fontSize: 16,
+                                  color: Color.fromRGBO(247, 89, 80, 1)
                               ),
                             ),
                             subtitle: Text(

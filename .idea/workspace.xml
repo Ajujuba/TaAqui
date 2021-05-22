@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bccc37dc-fd4d-4c56-af2b-e8c3a05348ff" name="Default Changelist" comment="" />
+    <list default="true" id="bccc37dc-fd4d-4c56-af2b-e8c3a05348ff" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/taqui/lib/screens/form_cadastro_postagem.dart" beforeDir="false" afterPath="$PROJECT_DIR$/taqui/lib/screens/form_cadastro_postagem.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taqui/lib/screens/form_login.dart" beforeDir="false" afterPath="$PROJECT_DIR$/taqui/lib/screens/form_login.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taqui/lib/screens/tela_objeto_detalhe.dart" beforeDir="false" afterPath="$PROJECT_DIR$/taqui/lib/screens/tela_objeto_detalhe.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taqui/lib/screens/tela_postagens.dart" beforeDir="false" afterPath="$PROJECT_DIR$/taqui/lib/screens/tela_postagens.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taqui/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/taqui/pubspec.lock" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

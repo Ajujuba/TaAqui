@@ -202,7 +202,17 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
     return Scaffold(
       appBar: AppBar(
         // define um titulo pra tela
-        title: Text(_tituloAppBar),
+        title: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Text(
+                  "Perfil do usuário"
+              ),
+            ),
+            Icon(Icons.person_rounded, color: Colors.white)
+          ],
+        ),
         elevation: 0,
         actions: <Widget>[
           IconButton(

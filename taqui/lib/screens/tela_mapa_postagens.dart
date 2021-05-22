@@ -135,7 +135,17 @@ class _MapaPostagensState extends State<MapaPostagens> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Mapa"),
+        title: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Text(
+                  "Mapa"
+              ),
+            ),
+            Icon(Icons.map_outlined, color: Colors.white)
+          ],
+        ),
         backgroundColor: Color.fromRGBO(246, 120, 46, 1),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
