@@ -28,7 +28,6 @@ class CadastroPostagem extends StatefulWidget {
 
 class CadastroPostagemState extends State<CadastroPostagem> {
   String _id;
-  bool _bool = false;
 
   bool _subindoImagem = false;
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -46,6 +45,10 @@ class CadastroPostagemState extends State<CadastroPostagem> {
   bool _network1 = false;
   bool _network2 = false;
   bool _network3 = false;
+
+  bool ver1 = false;
+  bool ver2 = false;
+  bool ver3 = false;
 
   File _imagem1 = null;
   File _imagem2 = null;
@@ -89,6 +92,30 @@ class CadastroPostagemState extends State<CadastroPostagem> {
           break;
       }
     });
+  }
+
+  _loading() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "${"Aviso"}",
+              style: TextStyle(color: Colors.deepOrange),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "${"Cadastrando postagem, porfavor aguarde..."}",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   _exibirMensagem(String title, String mensagem, String tipo) {
@@ -175,18 +202,17 @@ class CadastroPostagemState extends State<CadastroPostagem> {
   }
 
    _validaForm(){
-    if (_controllerDescricao != "" && _controllerLocalizacao != "") {
+    if (_controllerDescricao.text.isNotEmpty && _controllerLocalizacao.text.isNotEmpty) {
       _saveInfos();
     } else {
       _exibirMensagem(
           "Aviso",
           "Preencha todos os campos de texto para cadastrar a postagem!",
           "erro");
-      _bool = false;
     }
   }
 
-  _saveInfos() async {
+  Future<String> _saveInfos() async {
 
     String imagem1 = null;
     String imagem2 = null;
@@ -243,6 +269,8 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
     DocumentReference docRef = await _db.collection("postagens").add(dados);
 
+    _loading();
+
     _id = docRef.id;
     if (this._imagem1 == null &&
         this._imagem2 == null &&
@@ -251,20 +279,38 @@ class CadastroPostagemState extends State<CadastroPostagem> {
     } else {
       if (this._imagem1 != null && this._network1 == false) {
         await this._enviarFoto(this._imagem1, 1);
+      }else{
+        ver1 = true;
       }
       if (this._imagem2 != null && this._network2 == false) {
         await this._enviarFoto(this._imagem2, 2);
+      }else{
+        ver2 = true;
       }
       if (this._imagem3 != null && this._network3 == false) {
         await this._enviarFoto(this._imagem3, 3);
+      }else{
+        ver3 = true;
       }
+
     }
+
+     await _verificaCompleto();
 
   }
 
 
-  _enviarFoto(File imagemSelecionada, int numeroImagem) async {
+
+  _verificaCompleto(){
+    if (ver1 == true && ver2 == true && ver3 == true){
+      _exibirMensagem("Aviso", "Postagem cadastrada com sucesso!", "atualizar");
+    }
+  }
+
+
+  _enviarFoto(File imagemSelecionada, int numeroImagem){
     _subindoImagem = true;
+
     String nomeImagem = DateTime.now().millisecondsSinceEpoch.toString();
 
     FirebaseStorage storage = FirebaseStorage.instance;
@@ -307,9 +353,20 @@ class CadastroPostagemState extends State<CadastroPostagem> {
 
     _db.collection("postagens").doc(_id).update({
       campo: url,
+    }).then((value){
+      switch (numeroImagem) {
+        case 1:
+          ver1 = true;
+          break;
+        case 2:
+          ver2 = true;
+          break;
+        default:
+          ver3 = true;
+      }
+      _verificaCompleto();
     });
 
-    _exibirMensagem("Aviso", "Postagem cadastrada com sucesso!", "atualizar");
   }
 
   Widget _formPostagem() {

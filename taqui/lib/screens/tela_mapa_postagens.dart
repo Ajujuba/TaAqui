@@ -148,11 +148,7 @@ class _MapaPostagensState extends State<MapaPostagens> {
         ),
         backgroundColor: Color.fromRGBO(246, 120, 46, 1),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: _recuperaPostagem,
-      ),
+      
       body: Container(
         child: GoogleMap(
           //markers: _marcadores,
