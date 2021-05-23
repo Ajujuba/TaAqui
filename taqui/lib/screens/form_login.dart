@@ -233,67 +233,6 @@ class LoginState extends State<Login>{
             },
           ),
         ),
-        RaisedButton(
-          onPressed: () async {
-            FirebaseFirestore db = FirebaseFirestore.instance;
-
-            QuerySnapshot doc = await db.collection("postagens")
-            .where("endereco.latitude", isEqualTo: -23.6809294).get();
-
-            DocumentSnapshot dados = doc.docs[0];
-
-            ObjetoPerdido objeto = ObjetoPerdido();
-            Localizacao endereco = Localizacao();
-            endereco.rua = dados["endereco"]["rua"];
-            endereco.cep = dados["endereco"]["cep"];
-            endereco.latitude = dados["endereco"]["latitude"];
-            endereco.longitude = dados["endereco"]["longitude"];
-            objeto.id = "caz9fLilIPpWbN8dOtGE";
-            objeto.endereco = endereco;
-            objeto.descricao = dados["descricao"];
-            objeto.usuario = dados["usuario"];
-            objeto.status = dados["status"];
-            objeto.imagem1 = dados["imagem1"] != "" ? dados["imagem1"] : null;
-            objeto.imagem2 = dados["imagem2"] != "" ? dados["imagem2"] : null;
-            objeto.imagem3 = dados["imagem3"] != "" ? dados["imagem3"] : null;
-
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ObjetoDetalhe(objeto))
-            );
-          },
-          color: Colors.orange,
-          child: Text("Detalhes do objeto"),
-        ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => VisualizarPostagem("caz9fLilIPpWbN8dOtGE"))
-            );
-          },
-          color: Colors.orange,
-          child: Text("Detalhes da Postagem"),
-        ),
-        RaisedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ListagemChats())
-            );
-          },
-          color: Colors.orange,
-          child: Text("Chats"),
-        ),
-        IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () async {
-              String res = await showSearch(context: context, delegate: CustomSearchDelegate());
-              if(res != null && res != ""){
-                final endereco = jsonDecode(res) as Map<String, dynamic>;
-              }
-            }
-        ),
       ],
     );
 
