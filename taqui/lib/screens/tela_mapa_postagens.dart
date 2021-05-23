@@ -88,8 +88,16 @@ class _MapaPostagensState extends State<MapaPostagens> {
           cont++;
 
           String title = (doc["descricao"]);
-          title = ("$title                    ");
-          title = title.substring(0,15);
+          int tam = title.length;
+          if (tam < 13) {
+            for(int c = tam; c < 18; c++){
+              title = title + " ";
+            }
+          }else{
+            title = title.substring(0,15);
+            title = ("$title...");
+          }
+
 
           var long = (doc["endereco.longitude"]);
           var lat = (doc["endereco.latitude"]);
@@ -148,7 +156,7 @@ class _MapaPostagensState extends State<MapaPostagens> {
         ),
         backgroundColor: Color.fromRGBO(246, 120, 46, 1),
       ),
-      
+
       body: Container(
         child: GoogleMap(
           //markers: _marcadores,
