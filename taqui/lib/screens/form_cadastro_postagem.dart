@@ -427,7 +427,10 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                           color: laranja,
                           size: 35,
                         ),
-                        onPressed: () {})),
+                        onPressed: (){
+                            _defineLocalizacao();
+                        })
+                ),
               ],
             ),
           ),
@@ -455,7 +458,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
                 Expanded(
                   child: TextField(
                     readOnly: false,
-                    maxLines: 6,
+                    maxLines: 4,
                     keyboardType: TextInputType.text,
                     controller: _controllerDescricao,
                     decoration: InputDecoration(
@@ -682,6 +685,7 @@ class CadastroPostagemState extends State<CadastroPostagem> {
           )
         ],
       ),
-    )));
+    ))
+    );
   }
 }

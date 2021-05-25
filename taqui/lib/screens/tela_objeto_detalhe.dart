@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:taqui/CustomSearchDelegate.dart';
+import 'package:taqui/Menu.dart';
 import 'package:taqui/enums/StatusObjeto.dart';
 import 'package:taqui/models/Localizacao.dart';
 import 'package:taqui/models/ObjetoPerdido.dart';
@@ -114,6 +115,18 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
       _controllerLocalizacao.text = endereco["rua"];
     }
   }
+
+  _validaForm(){
+    if (_controllerDescricao.text.isNotEmpty && _controllerLocalizacao.text.isNotEmpty) {
+      _saveInfos();
+    } else {
+      _exibirMensagem(
+          "Aviso",
+          "Preencha todos os campos de texto para cadastrar a postagem!",
+          "erro");
+    }
+  }
+
   void _saveInfos() async{
 
     String imagem1 = null;
@@ -226,8 +239,11 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
               TextButton(
                   onPressed: (){
                     if(tipo == "excluir"){
+                      Navigator.pop(context);
                       Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => PostagensUsuario( )));
+                          MaterialPageRoute(builder: (context) {
+                            return Menu(indice: 2);
+                          }));
                     } else {
                       // _carregaDados();
                       _preencheImagens();
@@ -444,7 +460,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                     Expanded(
                                       child: TextField(
                                         readOnly: widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ? true : false,
-                                        maxLines: 6,
+                                        maxLines: 4,
                                         keyboardType: TextInputType.text,
                                         controller: _controllerDescricao,
                                         decoration: InputDecoration(
@@ -624,7 +640,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                 ),
                               ),
                               SizedBox(
-                                height: 20,
+                                height: 12,
                               ),
                               widget.objetoPerdido.status == StatusObjeto.ENCONTRADO ?
                               Container(
@@ -727,7 +743,7 @@ class _ObjetoDetalheState extends State<ObjetoDetalhe> {
                                             textAlign: TextAlign.center,
                                           ),
                                           onPressed: (){
-                                            _saveInfos();
+                                            _validaForm();
                                           }
                                       ),
                                     ),

@@ -71,19 +71,59 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
             } else{
               QuerySnapshot querySnapshot = dados.data;
               if(querySnapshot.docs.length == 0){
-                return Center(
-                  child: Text(
-                    "Você ainda não tem postagens :( ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey
-                    ),
-                  ),
+                return Container(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 370.0,
+                        child: Text(
+                          "Você ainda não tem postagens :( ",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 50.0,
+                        width: 300.0,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            stops: [0.3,1],
+                            colors: [
+                              Color(0xFFF58524),
+                              Color(0xFFF92B7F),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8),
+                          ),
+                        ),
+                        child:
+                        TextButton(
+                            child: Container(
+                              child:
+                              Text('Criar nova postagem',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            onPressed: () { _novapostagem(context); }
+                        ),
+                      )
+                    ],
+                  )
                 );
               }
               return Container(
+                padding: EdgeInsets.only(top: 8),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                //  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
                         child: Align(
@@ -128,12 +168,12 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
 
                                   ),
                                 ),
-                                subtitle: Text(
+                                subtitle: Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Text(
                                     DateFormat('dd/MM/yyyy hh:MM:ss').format(date),
-                                  style: TextStyle(
-                                     // color: Color(0xFFF92B7F)
                                   ),
-                                ),
+                                )
                               );
                             },
                           ),
@@ -168,7 +208,6 @@ class PostagensUsuarioState extends State<PostagensUsuario> {
                           ),
                           onPressed: () { _novapostagem(context); }
                       ),
-
                     )
                   ],
                 ),

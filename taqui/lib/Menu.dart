@@ -5,26 +5,32 @@ import 'package:taqui/screens/tela_perfil_usuario.dart';
 import 'package:taqui/screens/tela_postagens.dart';
 
 class Menu extends StatefulWidget {
+  int _indice;
+
+  Menu({int indice}){
+    this._indice = indice;
+  }
+
   @override
   _MenuState createState() => _MenuState();
 }
 
 class _MenuState extends State<Menu> {
   int _indice = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget._indice != null){
+      setState(() {
+        this._indice = widget._indice;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
 
     List<Widget> telas = [
-      /*Container(
-        child: Center(
-          child: Text(
-            "Lista de Postagens",
-            style: TextStyle(
-              fontSize: 25
-            ),
-          )
-        ),
-      ),*/
       MapaPostagens(),
       ListagemChats(),
       PostagensUsuario(),
