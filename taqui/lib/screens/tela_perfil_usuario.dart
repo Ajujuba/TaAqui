@@ -512,6 +512,7 @@ class PerfilUsuarioState extends State<PerfilUsuario> {
                                   //título
                                   alignment: Alignment.center,
                                   child: Container(
+                                    margin: EdgeInsets.only(bottom: 10),
                                     child: Column(
                                       children: <Widget>[
                                         Align(
