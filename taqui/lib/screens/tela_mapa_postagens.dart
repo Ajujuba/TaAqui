@@ -76,6 +76,9 @@ class _MapaPostagensState extends State<MapaPostagens> {
     var minLon = (position.longitude - 0.003500);
     var maxLon = (position.longitude + 0.003500);
     var cont = 0;
+    var rangecont = 0.000030;
+
+    String type = "X";
     Set<Marker> local = {};
     print("startou");
     FirebaseFirestore.instance
@@ -85,43 +88,82 @@ class _MapaPostagensState extends State<MapaPostagens> {
       .get()
       .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
-          cont++;
+          if (doc["status"] != "ENCONTRADO") {
+            cont++;
 
-          String title = (doc["descricao"]);
-          int tam = title.length;
-          if (tam < 13) {
-            for(int c = tam; c < 18; c++){
-              title = title + " ";
-            }
-          }else{
-            title = title.substring(0,15);
-            title = ("$title...");
-          }
-
-
-          var long = (doc["endereco.longitude"]);
-          var lat = (doc["endereco.latitude"]);
-
-          if (long >= minLon && long <= maxLon){
-            print(doc["descricao"]);
-            Marker marker = Marker(
-              markerId: MarkerId(cont.toString()),
-              position: LatLng(lat,long),
-              infoWindow: InfoWindow(
-                title: title,
-                onTap: () {
-                  print("Infowindow clicada");
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => VisualizarPostagem(doc.id))
-                  );
-                }
-              ),
-              onTap: (){
-                print("Marker clicado");
+            String title = (doc["descricao"]);
+            int tam = title.length;
+            if (tam < 13) {
+              for(int c = tam; c < 18; c++){
+                title = title + " ";
               }
-            );
-            local.add(marker);
+            }else{
+              title = title.substring(0,15);
+              title = ("$title...");
+            }
+
+            var long = (doc["endereco.longitude"]);
+            var lat = (doc["endereco.latitude"]);
+
+            if (long >= minLon && long <= maxLon){
+              if (type == "X"){
+                long = (doc["endereco.longitude"]);
+                lat = (doc["endereco.latitude"]);
+                type = "A";
+              }else if (type == "A"){
+                long = (doc["endereco.longitude"] + rangecont );
+                lat = (doc["endereco.latitude"]);
+                type = "B";
+              }else if (type == "B"){
+                long = (doc["endereco.longitude"]);
+                lat = (doc["endereco.latitude"] + rangecont );
+                type = "C";
+              }else if (type == "C"){
+                long = (doc["endereco.longitude"] - rangecont );
+                lat = (doc["endereco.latitude"]);
+                type = "D";
+              }else if (type == "D"){
+                long = (doc["endereco.longitude"]);
+                lat = (doc["endereco.latitude"] - rangecont );
+                type = "E";
+              }else if (type == "E"){
+                long = (doc["endereco.longitude"] + rangecont/2);
+                lat = (doc["endereco.latitude"] + rangecont/2);
+                type = "F";
+              }else if (type == "F") {
+                long = (doc["endereco.longitude"] + rangecont/2);
+                lat = (doc["endereco.latitude"] - rangecont/2);
+                type = "G";
+              }else if (type == "G") {
+                long = (doc["endereco.longitude"] - rangecont/2);
+                lat = (doc["endereco.latitude"] + rangecont/2);
+                type = "H";
+              }else if (type == "H") {
+                long = (doc["endereco.longitude"] - rangecont/2);
+                lat = (doc["endereco.latitude"] - rangecont/2);
+                type = "A";
+                rangecont = rangecont + 0.000030;
+              }
+              print(doc["descricao"]);
+              Marker marker = Marker(
+                  markerId: MarkerId(cont.toString()),
+                  position: LatLng(lat,long),
+                  infoWindow: InfoWindow(
+                      title: title,
+                      onTap: () {
+                        print("Infowindow clicada");
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => VisualizarPostagem(doc.id))
+                        );
+                      }
+                  ),
+                  onTap: (){
+                    print("Marker clicado");
+                  }
+              );
+              local.add(marker);
+            }
           }
         });
         setState(() {
